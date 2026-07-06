@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import FloatingWhatsApp from "@/components/mostused/FloatingWhatsApp";
 
 export const metadata: Metadata = {
   title: "Loom & Weave | Luxury Handcrafted Carpets & Rugs",
@@ -15,9 +17,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="light">
+    <html lang="en">
       <body className="antialiased">
-        {children}
+        <ThemeProvider>
+          {children}
+          <FloatingWhatsApp />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -39,7 +39,7 @@ export const CATEGORIES = [
     name: 'Nomad',
     description: 'Textured, organic flatweaves designed for high-traffic environments.',
     image: '/Carpet_06.jpg'
-  }
+  },
 ];
 
 export const PRODUCTS: DetailedProduct[] = [

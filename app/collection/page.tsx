@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, 
-  Filter, 
-  ChevronDown, 
-  X, 
-  MessageCircle, 
-  FileText, 
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import {
+  Search,
+  Filter,
+  ChevronDown,
+  X,
+  MessageCircle,
+  FileText,
   Maximize2,
   Box,
   Ruler
@@ -61,7 +61,7 @@ const products = [
     style: "Transitional",
     shape: "Round",
     color: "White",
-    available: false,
+    available: true,
     image: "/Carpet_03.jpg"
   },
   {
@@ -111,18 +111,18 @@ const products = [
 // --- ANIMATION VARIANTS ---
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.9 },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } 
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }
   }
 };
 const maskReveal = {
   hidden: { y: "100%", opacity: 0 },
-  visible: { 
-    y: "0%", 
-    opacity: 1, 
-    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } 
+  visible: {
+    y: "0%",
+    opacity: 1,
+    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as const }
   }
 };
 const staggerContainer = {
@@ -131,19 +131,55 @@ const staggerContainer = {
 };
 const cardVariant = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const } }
 };
 
+import { useTheme } from '@/components/ThemeProvider';
+
 export default function CollectionPage() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const { theme, setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
-  
+  const [currentBgIndex, setCurrentBgIndex] = useState(0);
+  const [nextBgIndex, setNextBgIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: heroScrollY } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  const backgroundY = useTransform(heroScrollY, [0, 1], ["0%", "30%"]);
+  const backgroundOpacity = useTransform(heroScrollY, [0, 1], [1, 0.3]);
+
+  const heroBgs = [
+    '/Carpet_02.jpg',
+    '/Carpet_04.jpg',
+    '/Carpet_06.jpg',
+    '/Carpet_08.jpg'
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const nextIdx = (currentBgIndex + 1) % heroBgs.length;
+      setNextBgIndex(nextIdx);
+      setIsTransitioning(true);
+
+      const animTimer = setTimeout(() => {
+        setCurrentBgIndex(nextIdx);
+        setIsTransitioning(false);
+      }, 1400);
+
+      return () => clearTimeout(animTimer);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [currentBgIndex, heroBgs.length]);
+
   // Filtering & Sorting State
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("latest");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  
+
   const [filters, setFilters] = useState<{ [key: string]: string[] }>({
     collection: [],
     material: [],
@@ -151,10 +187,6 @@ export default function CollectionPage() {
     shape: [],
     color: []
   });
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -172,7 +204,7 @@ export default function CollectionPage() {
   const toggleFilter = (category: string, value: string) => {
     setFilters(prev => {
       const current = prev[category] || [];
-      const updated = current.includes(value) 
+      const updated = current.includes(value)
         ? current.filter(item => item !== value)
         : [...current, value];
       return { ...prev, [category]: updated };
@@ -195,9 +227,9 @@ export default function CollectionPage() {
     // Search
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(p => 
-        p.name.toLowerCase().includes(q) || 
-        p.collection.toLowerCase().includes(q) || 
+      result = result.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.collection.toLowerCase().includes(q) ||
         p.material.toLowerCase().includes(q)
       );
     }
@@ -211,7 +243,7 @@ export default function CollectionPage() {
     });
 
     // Sorting
-    switch(sortOption) {
+    switch (sortOption) {
       case "alphabetical":
         result.sort((a, b) => a.name.localeCompare(b.name));
         break;
@@ -233,32 +265,127 @@ export default function CollectionPage() {
 
       <Navbar isScrolled={isScrolled} theme={theme} setTheme={setTheme} scrollToSection={scrollToSection} />
 
-      <main className="col-main">
-        <div className="col-container">
-          
-          {/* HERO SECTION */}
-          <section className="col-hero">
-            <motion.span initial="hidden" animate="visible" variants={scaleIn} className="col-hero-tag">
+      <main className="col-main" style={{ paddingTop: 0 }}>
+        {/* HERO SECTION */}
+        <section ref={heroRef} className="col-hero" style={{
+          position: 'relative',
+          overflow: 'hidden',
+          padding: '9.5rem 5% 5rem 5%',
+          marginBottom: '4rem',
+          background: 'var(--bg-secondary)',
+          width: '100%',
+          textAlign: 'center'
+        }}>
+          {/* Background Slideshow Layer */}
+          <motion.div style={{ position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden', y: backgroundY, opacity: backgroundOpacity }}>
+
+            {/* Underneath current active background */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url(${heroBgs[currentBgIndex]})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                opacity: theme === 'light' ? 0.55 : 0.75,
+                transition: 'opacity 0.6s ease',
+              }}
+            />
+
+            {/* Rolling strips on top during transition */}
+            {isTransitioning && Array.from({ length: 6 }).map((_, i) => {
+              const isEven = i % 2 === 0;
+              return (
+                <motion.div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    top: `${i * 16.666}%`,
+                    height: '16.667%',
+                    left: isEven ? 0 : 'auto',
+                    right: isEven ? 'auto' : 0,
+                    overflow: 'hidden',
+                    zIndex: 2,
+                  }}
+                  initial={{ width: '0%' }}
+                  animate={{ width: '100%' }}
+                  exit={{ width: '0%' }}
+                  transition={{
+                    duration: 1.0,
+                    ease: [0.25, 1, 0.5, 1], // Smooth roll ease
+                    delay: i * 0.04,
+                  }}
+                >
+                  {/* Seamless inner background slice */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      width: '100vw', // Use viewport width to keep horizontal background size fixed
+                      height: '600%', // 6 times the slice height
+                      top: `-${i * 100}%`,
+                      left: isEven ? 0 : 'auto',
+                      right: isEven ? 'auto' : 0,
+                      backgroundImage: `url(${heroBgs[nextBgIndex]})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      opacity: theme === 'light' ? 0.55 : 0.75,
+                    }}
+                  />
+
+                  {/* Cylinder roll indicator */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      bottom: 0,
+                      width: '8px',
+                      left: isEven ? 'auto' : 0,
+                      right: isEven ? 0 : 'auto',
+                      background: 'linear-gradient(to right, rgba(0,0,0,0.4) 0%, rgba(255,255,255,0.2) 30%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.2) 70%, rgba(0,0,0,0.5) 100%)',
+                      boxShadow: isEven
+                        ? '-2px 0 6px rgba(0,0,0,0.5)'
+                        : '2px 0 6px rgba(0,0,0,0.5)',
+                      zIndex: 3,
+                    }}
+                  />
+                </motion.div>
+              );
+            })}
+
+            {/* Dark Mask Overlay for Premium Readability */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.3) 50%, var(--bg-page) 100%)',
+              zIndex: 1,
+            }} />
+          </motion.div>
+
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <motion.span initial="hidden" animate="visible" variants={scaleIn} className="col-hero-tag" style={{ background: 'rgba(0, 0, 0, 0.4)', color: '#ffffff', backdropFilter: 'blur(8px)', borderColor: 'var(--accent-solid)' }}>
               Masterpieces
             </motion.span>
             <h1 className="col-hero-title">
               <span className="overflow-hidden block pb-2">
-                <motion.span initial="hidden" animate="visible" variants={maskReveal} className="block">Our Exclusive</motion.span>
+                <motion.span initial="hidden" animate="visible" variants={maskReveal} className="block" style={{ color: '#ffffff', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>Our Exclusive</motion.span>
               </span>
               <span className="overflow-hidden block pb-2">
-                <motion.span initial="hidden" animate="visible" variants={maskReveal} transition={{ delay: 0.1 }} className="block text-transparent bg-clip-text bg-gradient-to-r from-[var(--text-pure)] to-[var(--accent-solid)]">
+                <motion.span initial="hidden" animate="visible" variants={maskReveal} transition={{ delay: 0.1 }} className="block text-transparent bg-clip-text bg-gradient-to-r from-[#ffffff] to-[var(--accent-solid)]" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
                   Collections
                 </motion.span>
               </span>
             </h1>
-            <motion.p initial="hidden" animate="visible" variants={scaleIn} transition={{ delay: 0.2 }} className="col-hero-desc">
+            <motion.p initial="hidden" animate="visible" variants={scaleIn} transition={{ delay: 0.2 }} className="col-hero-desc" style={{ color: '#eaeaea', textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
               Explore our curated archive of hand-knotted and hand-tufted textiles. Filter by material, style, and color to find the perfect anchor for your architectural space.
             </motion.p>
-          </section>
+          </div>
+        </section>
+
+        <div className="col-container">
 
           {/* MAIN LAYOUT */}
           <div className="col-layout">
-            
+
             {/* MOBILE FILTER BUTTON */}
             <button className="col-mobile-filter-btn" onClick={() => setShowMobileFilters(!showMobileFilters)}>
               <Filter size={18} /> {showMobileFilters ? "Hide Filters" : "Show Filters"}
@@ -272,8 +399,8 @@ export default function CollectionPage() {
                   <div className="col-filter-list">
                     {options.map(option => (
                       <label key={option} className="col-filter-label">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           className="col-filter-checkbox"
                           checked={filters[category].includes(option)}
                           onChange={() => toggleFilter(category, option)}
@@ -288,14 +415,14 @@ export default function CollectionPage() {
 
             {/* CONTENT AREA */}
             <div className="col-content">
-              
+
               {/* TOP BAR */}
               <div className="col-topbar">
                 <div className="col-search">
                   <Search size={18} className="col-search-icon" />
-                  <input 
-                    type="text" 
-                    placeholder="Search by name, material..." 
+                  <input
+                    type="text"
+                    placeholder="Search by name, material..."
                     className="col-search-input"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -314,7 +441,7 @@ export default function CollectionPage() {
 
               {/* PRODUCT GRID */}
               {processedProducts.length > 0 ? (
-                <motion.div 
+                <motion.div
                   className="col-grid"
                   variants={staggerContainer}
                   initial="hidden"
@@ -323,10 +450,10 @@ export default function CollectionPage() {
                 >
                   {processedProducts.map(product => (
                     <motion.div key={product.id} variants={cardVariant} className="col-card group">
-                      
+
                       {/* Image Wrap */}
                       <div className="col-card-img-wrap">
-                        <Image 
+                        <Image
                           src={product.image}
                           alt={product.name}
                           fill
@@ -334,22 +461,31 @@ export default function CollectionPage() {
                           className="col-card-img"
                         />
                         {!product.available && (
-                          <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md text-white text-xs font-mono uppercase tracking-widest py-1 px-3 rounded-full">
+                          <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md text-white text-xs font-mono uppercase tracking-widest py-1 px-3 rounded-full z-10">
                             Out of Stock
                           </div>
                         )}
-                        
+                        {product.available && (
+                          <div className="absolute top-4 left-4 bg-emerald-950/90 border border-emerald-500/30 backdrop-blur-md text-emerald-400 text-[10px] font-mono uppercase tracking-widest py-1.5 px-3.5 rounded-full flex items-center gap-1.5 z-10">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-450 animate-pulse" style={{ backgroundColor: '#10b981' }}></span>
+                            Available
+                          </div>
+                        )}
+
                         {/* Hover Overlay */}
                         <div className="col-card-overlay">
                           <button onClick={() => setSelectedProduct(product)} className="col-action-btn">
                             <Maximize2 size={16} /> View Details
                           </button>
-                          <a href={`https://wa.me/919876543210?text=I'm interested in ${product.name} (${product.size})`} target="_blank" rel="noopener noreferrer" className="col-action-btn col-action-btn-wa">
+                          <a href={`https://wa.me/919321366585?text=I'm interested in ${product.name} (${product.size})`} target="_blank" rel="noopener noreferrer" className="col-action-btn col-action-btn-wa">
                             <MessageCircle size={16} /> WhatsApp Inquiry
                           </a>
-                          <button className="col-action-btn">
+                          <a
+                            href={`mailto:info@abdulrahmancarpets.com?subject=Quote%20Request%20for%20${encodeURIComponent(product.name)}&body=I%20would%20like%20to%20request%20a%20price%20quotation%20for%20the%20${encodeURIComponent(product.name)}%20carpet%20size%20${encodeURIComponent(product.size)}.`}
+                            className="col-action-btn"
+                          >
                             <FileText size={16} /> Request Quote
-                          </button>
+                          </a>
                         </div>
                       </div>
 
@@ -358,7 +494,7 @@ export default function CollectionPage() {
                         <span className="col-card-collection">{product.collection} Collection</span>
                         <h3 className="col-card-title">{product.name}</h3>
                         <p className="col-card-desc">{product.desc}</p>
-                        
+
                         <div className="col-card-meta">
                           <div className="col-card-meta-item">
                             <Box size={14} /> {product.material}
@@ -368,7 +504,7 @@ export default function CollectionPage() {
                           </div>
                         </div>
                       </div>
-                      
+
                     </motion.div>
                   ))}
                 </motion.div>
@@ -377,7 +513,7 @@ export default function CollectionPage() {
                   <Search size={48} className="col-empty-icon" />
                   <h3 className="text-xl font-semibold mb-2">No products found</h3>
                   <p className="text-[var(--text-muted)]">Try adjusting your search or filters to find what you're looking for.</p>
-                  <button 
+                  <button
                     onClick={() => { setSearchQuery(""); setFilters({ collection: [], material: [], style: [], shape: [], color: [] }); }}
                     className="mt-6 px-6 py-2 bg-[var(--accent-solid)] text-white rounded-lg hover:opacity-90 transition-opacity"
                   >
@@ -396,14 +532,14 @@ export default function CollectionPage() {
       {/* PRODUCT DETAIL MODAL */}
       <AnimatePresence>
         {selectedProduct && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="col-modal-overlay"
             onClick={() => setSelectedProduct(null)}
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -414,21 +550,21 @@ export default function CollectionPage() {
               <button className="col-modal-close" onClick={() => setSelectedProduct(null)}>
                 <X size={20} />
               </button>
-              
+
               <div className="col-modal-img-wrap">
-                <Image 
+                <Image
                   src={selectedProduct.image}
                   alt={selectedProduct.name}
                   fill
                   style={{ objectFit: 'cover' }}
                 />
               </div>
-              
+
               <div className="col-modal-content">
                 <span className="col-modal-collection">{selectedProduct.collection} Collection</span>
                 <h2 className="col-modal-title">{selectedProduct.name}</h2>
                 <p className="col-modal-desc">{selectedProduct.desc}</p>
-                
+
                 <div className="col-modal-meta-grid">
                   <div className="col-modal-meta-item">
                     <span className="col-modal-meta-label">Material</span>
@@ -447,14 +583,18 @@ export default function CollectionPage() {
                     <span className="col-modal-meta-value">{selectedProduct.type}</span>
                   </div>
                 </div>
-                
+
                 <div className="col-modal-actions">
-                  <a href={`https://wa.me/919876543210?text=I'm interested in ${selectedProduct.name} (${selectedProduct.size})`} target="_blank" rel="noopener noreferrer" className="col-modal-btn col-modal-btn-wa">
+                  <a href={`https://wa.me/919321366585?text=I'm interested in ${selectedProduct.name} (${selectedProduct.size})`} target="_blank" rel="noopener noreferrer" className="col-modal-btn col-modal-btn-wa">
                     <MessageCircle size={20} /> Inquire via WhatsApp
                   </a>
-                  <button className="col-modal-btn col-modal-btn-primary">
+                  <a
+                    href={`mailto:info@abdulrahmancarpets.com?subject=Quote%20Request%20for%20${encodeURIComponent(selectedProduct.name)}&body=I%20would%20like%20to%20request%20a%20price%20quotation%20for%20the%20${encodeURIComponent(selectedProduct.name)}%20carpet%20size%20${encodeURIComponent(selectedProduct.size)}.`}
+                    className="col-modal-btn col-modal-btn-primary"
+                    style={{ textDecoration: 'none' }}
+                  >
                     <FileText size={20} /> Request Formal Quote
-                  </button>
+                  </a>
                   <button onClick={() => setSelectedProduct(null)} className="col-modal-btn col-modal-btn-close">
                     Close Details
                   </button>

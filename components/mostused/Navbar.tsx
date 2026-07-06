@@ -16,6 +16,10 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const pathname = usePathname();
 
+  // Branding & Interaction Color Variables
+  const lightBlueColor = '#aaccff'; // Light blue for "Carpets" text
+  const hoverBlueColor = '#0066cc'; // Rich blue for hover states and indicators
+
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -73,7 +77,7 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
               height: '40px',
               borderRadius: '50%',
               overflow: 'hidden',
-              border: isScrolled ? '1px solid #c5a059' : '1px solid rgba(255, 255, 255, 0.3)',
+              border: isScrolled ? `1px solid ${hoverBlueColor}` : '1px solid rgba(255, 255, 255, 0.3)',
               background: '#ffffff',
               display: 'flex',
               alignItems: 'center',
@@ -106,7 +110,7 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
               textShadow: isScrolled ? 'none' : '0 2px 4px rgba(0, 0, 0, 0.4)'
             }}
           >
-            Abdul Rahman<span style={{ color: '#c5a059', marginLeft: '6px' }}>Carpets</span>
+            Abdul Rahman<span style={{ color: lightBlueColor, marginLeft: '6px' }}>Carpets</span>
           </span>
         </Link>
 
@@ -129,11 +133,11 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
               letterSpacing: '0.4px',
               transition: 'all 0.3s ease',
               color: pathname === '/'
-                ? '#c5a059'
+                ? hoverBlueColor
                 : (isScrolled ? (theme === 'light' ? '#4e4f54' : '#a0a0a5') : 'rgba(255, 255, 255, 0.9)'),
               textShadow: isScrolled ? 'none' : '0 1px 3px rgba(0, 0, 0, 0.3)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#c5a059'}
+            onMouseEnter={(e) => e.currentTarget.style.color = hoverBlueColor}
             onMouseLeave={(e) => {
               if (pathname !== '/') {
                 e.currentTarget.style.color = isScrolled
@@ -145,7 +149,6 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
             Home
           </Link>
 
-          {/* UPDATED PATH TO /who-we-are */}
           <Link
             href="/who-we-are"
             className="nav-link-item"
@@ -156,11 +159,11 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
               letterSpacing: '0.4px',
               transition: 'all 0.3s ease',
               color: pathname === '/who-we-are'
-                ? '#c5a059'
+                ? hoverBlueColor
                 : (isScrolled ? (theme === 'light' ? '#4e4f54' : '#a0a0a5') : 'rgba(255, 255, 255, 0.9)'),
               textShadow: isScrolled ? 'none' : '0 1px 3px rgba(0, 0, 0, 0.3)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#c5a059'}
+            onMouseEnter={(e) => e.currentTarget.style.color = hoverBlueColor}
             onMouseLeave={(e) => {
               if (pathname !== '/who-we-are') {
                 e.currentTarget.style.color = isScrolled
@@ -182,11 +185,11 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
               letterSpacing: '0.4px',
               transition: 'all 0.3s ease',
               color: pathname === '/collection'
-                ? '#c5a059'
+                ? hoverBlueColor
                 : (isScrolled ? (theme === 'light' ? '#4e4f54' : '#a0a0a5') : 'rgba(255, 255, 255, 0.9)'),
               textShadow: isScrolled ? 'none' : '0 1px 3px rgba(0, 0, 0, 0.3)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#c5a059'}
+            onMouseEnter={(e) => e.currentTarget.style.color = hoverBlueColor}
             onMouseLeave={(e) => {
               if (pathname !== '/collection') {
                 e.currentTarget.style.color = isScrolled
@@ -208,11 +211,11 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
               letterSpacing: '0.4px',
               transition: 'all 0.3s ease',
               color: pathname.startsWith('/products')
-                ? '#c5a059'
+                ? hoverBlueColor
                 : (isScrolled ? (theme === 'light' ? '#4e4f54' : '#a0a0a5') : 'rgba(255, 255, 255, 0.9)'),
               textShadow: isScrolled ? 'none' : '0 1px 3px rgba(0, 0, 0, 0.3)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#c5a059'}
+            onMouseEnter={(e) => e.currentTarget.style.color = hoverBlueColor}
             onMouseLeave={(e) => {
               if (!pathname.startsWith('/products')) {
                 e.currentTarget.style.color = isScrolled
@@ -234,11 +237,11 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
               letterSpacing: '0.4px',
               transition: 'all 0.3s ease',
               color: pathname === '/contact'
-                ? '#c5a059'
+                ? hoverBlueColor
                 : (isScrolled ? (theme === 'light' ? '#4e4f54' : '#a0a0a5') : 'rgba(255, 255, 255, 0.9)'),
               textShadow: isScrolled ? 'none' : '0 1px 3px rgba(0, 0, 0, 0.3)'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#c5a059'}
+            onMouseEnter={(e) => e.currentTarget.style.color = hoverBlueColor}
             onMouseLeave={(e) => {
               if (pathname !== '/contact') {
                 e.currentTarget.style.color = isScrolled
@@ -320,26 +323,26 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
               textDecoration: 'none',
               transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
               background: isScrolled
-                ? theme === 'light' ? '#1c1d21' : '#c5a059'
+                ? theme === 'light' ? '#1c1d21' : hoverBlueColor
                 : '#ffffff',
               color: isScrolled
-                ? theme === 'light' ? '#ffffff' : '#1c1d21'
+                ? theme === 'light' ? '#ffffff' : '#ffffff'
                 : '#1c1d21',
               border: isScrolled
-                ? theme === 'light' ? '1px solid #1c1d21' : '1px solid #c5a059'
+                ? theme === 'light' ? '1px solid #1c1d21' : `1px solid ${hoverBlueColor}`
                 : '1px solid #ffffff',
               boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
             }}
             onMouseEnter={(e) => {
-              uiStyleUpdate(e.currentTarget, '#c5a059', '#c5a059', '#1c1d21');
+              uiStyleUpdate(e.currentTarget, hoverBlueColor, hoverBlueColor, '#ffffff');
             }}
             onMouseLeave={(e) => {
               if (isScrolled) {
                 uiStyleUpdate(
                   e.currentTarget,
-                  theme === 'light' ? '#1c1d21' : '#c5a059',
-                  theme === 'light' ? '#1c1d21' : '#c5a059',
-                  theme === 'light' ? '#ffffff' : '#1c1d21'
+                  theme === 'light' ? '#1c1d21' : hoverBlueColor,
+                  theme === 'light' ? '#1c1d21' : hoverBlueColor,
+                  '#ffffff'
                 );
               } else {
                 uiStyleUpdate(e.currentTarget, '#ffffff', '#ffffff', '#1c1d21');
@@ -412,18 +415,17 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
             lineHeight: 1,
             transition: 'color 0.2s ease'
           }}
-          onMouseEnter={(e) => e.currentTarget.style.color = '#c5a059'}
+          onMouseEnter={(e) => e.currentTarget.style.color = hoverBlueColor}
           onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-pure)'}
         >
           ✕
         </button>
 
-        <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="mobile-drawer-link" style={{ borderBottom: pathname === '/' ? '2px solid #c5a059' : '2px solid transparent' }}>Home</Link>
-        {/* UPDATED PATH TO /who-we-are */}
-        <Link href="/who-we-are" onClick={() => setIsMobileMenuOpen(false)} className="mobile-drawer-link" style={{ borderBottom: pathname === '/who-we-are' ? '2px solid #c5a059' : '2px solid transparent' }}>Who We Are</Link>
-        <Link href="/collection" onClick={() => setIsMobileMenuOpen(false)} className="mobile-drawer-link" style={{ borderBottom: pathname === '/collection' ? '2px solid #c5a059' : '2px solid transparent' }}>Collections</Link>
-        <Link href="/products/all" onClick={() => setIsMobileMenuOpen(false)} className="mobile-drawer-link" style={{ borderBottom: pathname.startsWith('/products') ? '2px solid #c5a059' : '2px solid transparent' }}>Product Details</Link>
-        <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="mobile-drawer-link" style={{ borderBottom: pathname === '/contact' ? '2px solid #c5a059' : '2px solid transparent' }}>Contact Us</Link>
+        <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="mobile-drawer-link" style={{ borderBottom: pathname === '/' ? `2px solid ${hoverBlueColor}` : '2px solid transparent' }}>Home</Link>
+        <Link href="/who-we-are" onClick={() => setIsMobileMenuOpen(false)} className="mobile-drawer-link" style={{ borderBottom: pathname === '/who-we-are' ? `2px solid ${hoverBlueColor}` : '2px solid transparent' }}>Who We Are</Link>
+        <Link href="/collection" onClick={() => setIsMobileMenuOpen(false)} className="mobile-drawer-link" style={{ borderBottom: pathname === '/collection' ? `2px solid ${hoverBlueColor}` : '2px solid transparent' }}>Collections</Link>
+        <Link href="/products/all" onClick={() => setIsMobileMenuOpen(false)} className="mobile-drawer-link" style={{ borderBottom: pathname.startsWith('/products') ? `2px solid ${hoverBlueColor}` : '2px solid transparent' }}>Product Details</Link>
+        <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="mobile-drawer-link" style={{ borderBottom: pathname === '/contact' ? `2px solid ${hoverBlueColor}` : '2px solid transparent' }}>Contact Us</Link>
 
         <button
           onClick={() => {
@@ -435,7 +437,7 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
             marginTop: 'auto',
             padding: '14px',
             fontSize: '13px',
-            background: '#c5a059',
+            background: hoverBlueColor,
             color: '#ffffff',
             border: 'none',
             borderRadius: '4px',
@@ -488,7 +490,7 @@ export default function Navbar({ isScrolled, theme, setTheme, scrollToSection }:
         }
 
         .mobile-drawer-link:hover {
-          color: #c5a059;
+          color: ${hoverBlueColor};
         }
 
         .burger-active .line-top {

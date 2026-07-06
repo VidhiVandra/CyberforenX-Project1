@@ -29,7 +29,7 @@ const slideIn = {
     opacity: 1, 
     y: 0, 
     scale: 1, 
-    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } 
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const } 
   }
 };
 
@@ -38,10 +38,12 @@ const staggerContainer = {
   visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
 };
 
+import { useTheme } from '@/components/ThemeProvider';
+
 export default function WhoWeArePremium() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const { theme, setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
-  
+
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: heroScrollY } = useScroll({
     target: heroRef,
@@ -49,10 +51,6 @@ export default function WhoWeArePremium() {
   });
   const heroY = useTransform(heroScrollY, [0, 1], ["0%", "40%"]);
   const heroOpacity = useTransform(heroScrollY, [0, 1], [1, 0]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -82,8 +80,8 @@ export default function WhoWeArePremium() {
 
           <div className="wa-hero-content">
             <motion.span 
-              initial={{ opacity: 0, tracking: "0em" }}
-              animate={{ opacity: 1, tracking: "0.2em" }}
+              initial={{ opacity: 0, letterSpacing: "0em" }}
+              animate={{ opacity: 1, letterSpacing: "0.2em" }}
               transition={{ duration: 1.2, delay: 0.1, ease: "easeOut" }}
               className="wa-hero-tagline"
             >
@@ -92,7 +90,7 @@ export default function WhoWeArePremium() {
             <motion.h1 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] as const }}
               className="wa-hero-title"
             >
               Mastering The Art <br/> 
@@ -174,41 +172,82 @@ export default function WhoWeArePremium() {
         </section>
 
         {/* 3. ETHOS (Mission, Vision, Philosophy) */}
-        <section className="wa-section wa-section-secondary">
+        <section className="wa-section wa-section-secondary ethos-redesign-section">
           <div className="wa-ethos-bg">
-            <img src="/Carpet_02.jpg" alt="Texture Background" />
+            <img src="/Carpet_02.jpg" alt="Texture Background" className="wa-ethos-bg-image" />
+            <div className="wa-ethos-bg-overlay"></div>
           </div>
           
           <div className="wa-container" style={{ position: 'relative', zIndex: 10 }}>
+            <div className="ethos-header-wrapper">
+              <div className="ethos-title-col">
+                <span className="wa-history-tag">Core Principles</span>
+                <h2 className="wa-history-title ethos-main-title">Our Triad of Purpose</h2>
+              </div>
+              <p className="ethos-subtitle-col">
+                How we define our operational footprint, creative aspirations, and commitments to the design community worldwide.
+              </p>
+            </div>
+
             <motion.div 
-              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer}
-              className="wa-ethos-grid"
+              initial="hidden" 
+              whileInView="visible" 
+              viewport={{ once: true, margin: "-50px" }} 
+              variants={staggerContainer}
+              className="wa-ethos-grid-modern"
             >
               {/* Mission */}
-              <motion.div variants={slideIn} className="wa-ethos-card">
-                <Target size={32} strokeWidth={1.5} className="wa-ethos-icon" />
+              <motion.div 
+                variants={slideIn} 
+                whileHover={{ y: -8 }}
+                className="wa-ethos-card-modern"
+              >
+                <div className="card-top-accent"></div>
+                <div className="wa-ethos-icon-wrapper">
+                  <Target size={36} strokeWidth={1.5} className="wa-ethos-icon-animated target-pulse" />
+                </div>
+                <span className="ethos-badge-num">01 / Focus</span>
                 <h3 className="wa-ethos-title">Mission</h3>
                 <p className="wa-ethos-desc">
                   To supply global design landscapes with ethically conscious luxury floor variants that honor authentic weaving craft while preserving structural resilience and durability.
                 </p>
+                <div className="ethos-card-glow"></div>
               </motion.div>
 
               {/* Vision */}
-              <motion.div variants={slideIn} className="wa-ethos-card">
-                <Eye size={32} strokeWidth={1.5} className="wa-ethos-icon" />
+              <motion.div 
+                variants={slideIn} 
+                whileHover={{ y: -8 }}
+                className="wa-ethos-card-modern"
+              >
+                <div className="card-top-accent"></div>
+                <div className="wa-ethos-icon-wrapper">
+                  <Eye size={36} strokeWidth={1.5} className="wa-ethos-icon-animated eye-blink" />
+                </div>
+                <span className="ethos-badge-num">02 / Future</span>
                 <h3 className="wa-ethos-title">Vision</h3>
                 <p className="wa-ethos-desc">
                   To become the ultimate worldwide benchmark destination for custom textile art, where master architectural spaces effortlessly mesh with historical craftsmanship loops.
                 </p>
+                <div className="ethos-card-glow"></div>
               </motion.div>
 
               {/* Philosophy */}
-              <motion.div variants={slideIn} className="wa-ethos-card">
-                <Compass size={32} strokeWidth={1.5} className="wa-ethos-icon" />
+              <motion.div 
+                variants={slideIn} 
+                whileHover={{ y: -8 }}
+                className="wa-ethos-card-modern"
+              >
+                <div className="card-top-accent"></div>
+                <div className="wa-ethos-icon-wrapper">
+                  <Compass size={36} strokeWidth={1.5} className="wa-ethos-icon-animated compass-spin" />
+                </div>
+                <span className="ethos-badge-num">03 / Path</span>
                 <h3 className="wa-ethos-title">Philosophy</h3>
                 <p className="wa-ethos-desc">
                   Real premium luxury demands absolute operational patience, strict material selection, and direct communication lines. Our structures only shine if our core community thrives.
                 </p>
+                <div className="ethos-card-glow"></div>
               </motion.div>
             </motion.div>
           </div>
@@ -217,7 +256,7 @@ export default function WhoWeArePremium() {
         {/* 4. CORE VALUES & MANUFACTURING EXPERTISE */}
         <section className="wa-section">
           <div className="wa-container">
-            <div className="wa-split-grid">
+            <div className="wa-split-grid-modern">
               
               {/* Left Side: Core Values */}
               <div>
@@ -227,18 +266,24 @@ export default function WhoWeArePremium() {
                     <h2 className="wa-history-title" style={{ marginBottom: 0 }}>Our Core Values</h2>
                   </div>
                   
-                  <div className="wa-values-list">
+                  <div className="values-asymmetric-ledger">
                     {[
-                      { icon: <ShieldCheck size={24}/>, title: 'Artisanal Preservation', text: 'Protecting time-honored hand-knotting configurations from low-tier machine replacement layers.' },
-                      { icon: <Layers size={24}/>, title: 'Uncompromising Standards', text: 'Enforcing strict quality checks across raw woolen blends, viscose formations, and density loops.' },
-                      { icon: <Lightbulb size={24}/>, title: 'Design Evolution', text: 'Adapting traditional Bhadohi motifs into minimalist, highly contemporary interior architectures.' },
-                      { icon: <HeartHandshake size={24}/>, title: 'Absolute Integrity', text: 'Maintaining clear, transparent product parameters and real-time client setup updates.' }
+                      { index: 'I', icon: <ShieldCheck size={22} className="ledger-icon" />, title: 'Artisanal Preservation', text: 'Protecting time-honored hand-knotting configurations from low-tier machine replacement layers.' },
+                      { index: 'II', icon: <Layers size={22} className="ledger-icon" />, title: 'Uncompromising Standards', text: 'Enforcing strict quality checks across raw woolen blends, viscose formations, and density loops.' },
+                      { index: 'III', icon: <Lightbulb size={22} className="ledger-icon" />, title: 'Design Evolution', text: 'Adapting traditional Bhadohi motifs into minimalist, highly contemporary interior architectures.' },
+                      { index: 'IV', icon: <HeartHandshake size={22} className="ledger-icon" />, title: 'Absolute Integrity', text: 'Maintaining clear, transparent product parameters and real-time client setup updates.' }
                     ].map((val, idx) => (
-                      <div key={idx} className="wa-value-item">
-                        <div className="wa-value-icon">{val.icon}</div>
-                        <div>
-                          <h4 className="wa-value-title">{val.title}</h4>
-                          <p className="wa-value-desc">{val.text}</p>
+                      <div key={idx} className="value-ledger-item">
+                        <div className="ledger-index-wrapper">
+                          <span>{val.index}</span>
+                          <div className="ledger-accent-bar"></div>
+                        </div>
+                        <div className="ledger-content-wrap">
+                          <div className="ledger-title-row">
+                            {val.icon}
+                            <h4 className="ledger-title">{val.title}</h4>
+                          </div>
+                          <p className="ledger-desc">{val.text}</p>
                         </div>
                       </div>
                     ))}
@@ -248,27 +293,28 @@ export default function WhoWeArePremium() {
 
               {/* Right Side: Manufacturing Excellence */}
               <div>
-                <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={slideIn} className="wa-process-card">
-                  <div className="wa-process-bg-glow"></div>
+                <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={slideIn} className="wa-blueprint-canvas">
+                  <Compass className="blueprint-crosshair" size={32} strokeWidth={1} />
                   
-                  <div className="wa-process-header">
-                    <span className="wa-history-tag" style={{ marginBottom: '1rem', display: 'block' }}>The Process</span>
-                    <h2 className="wa-ethos-title" style={{ fontSize: '1.875rem' }}>Manufacturing Expertise</h2>
-                    <p className="wa-ethos-desc" style={{ marginTop: '0.5rem' }}>Our vertically integrated operations eliminate synthetic fillers and ensure authentic surface treatments.</p>
+                  <div className="blueprint-header">
+                    <span className="wa-history-tag" style={{ marginBottom: '0.75rem', display: 'block' }}>The Process</span>
+                    <h3 className="wa-ethos-title" style={{ fontSize: '1.85rem', marginBottom: 0 }}>Manufacturing Expertise</h3>
+                    <p className="wa-ethos-desc" style={{ marginTop: '0.5rem', fontSize: '0.95rem' }}>Our vertically integrated operations eliminate synthetic fillers and ensure authentic surface treatments.</p>
                   </div>
                   
-                  <div className="wa-process-list">
+                  <div className="blueprint-timeline">
+                    <div className="blueprint-timeline-line"></div>
                     {[
                       { step: '01', title: 'Design & Engineering', desc: 'Bespoke customization matched to architectural blueprints.' },
                       { step: '02', title: 'Material Sourcing', desc: 'Premium Woolen, Cotton, and high-lustre Viscose yarn.' },
                       { step: '03', title: 'Manufacturing', desc: 'Authentic clean-water washes to safely lock pattern contrast.' },
                       { step: '04', title: 'Distribution', desc: 'Direct logistics avoiding middle-man friction.' }
                     ].map((item, idx) => (
-                      <div key={idx} className="wa-process-item">
-                        <div className="wa-process-badge">{item.step}</div>
-                        <div className="wa-process-text-wrap">
-                          <h4 className="wa-process-title">{item.title}</h4>
-                          <p className="wa-process-desc">{item.desc}</p>
+                      <div key={idx} className="blueprint-step">
+                        <div className="blueprint-marker">{item.step}</div>
+                        <div className="blueprint-step-info">
+                          <h4 className="blueprint-step-title">{item.title}</h4>
+                          <p className="blueprint-step-desc">{item.desc}</p>
                         </div>
                       </div>
                     ))}
@@ -349,18 +395,6 @@ export default function WhoWeArePremium() {
           </div>
         </section>
       </main>
-
-      {/* FLOATING WHATSAPP BUTTON */}
-      <a 
-        href="https://wa.me/your-number" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="wa-whatsapp group"
-        aria-label="Contact on WhatsApp"
-      >
-        <div className="wa-whatsapp-pulse"></div>
-        <Phone size={24} fill="currentColor" stroke="none" />
-      </a>
 
       <Footer scrollToSection={scrollToSection} />
     </div>

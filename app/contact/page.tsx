@@ -2,22 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Clock, 
-  MessageCircle, 
-  Send, 
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  MessageCircle,
+  Send,
   ChevronDown,
   ShieldCheck
 } from 'lucide-react';
 
-import { 
-   Facebook, 
-   Instagram, 
-   Twitter, 
-   Linkedin 
+import {
+  Facebook,
+  Instagram,
+  Twitter,
+  Linkedin
 } from '@/components/mostused/lucide-brand';
 
 import Navbar from '@/components/mostused/Navbar';
@@ -29,10 +29,10 @@ import './contact.css';
 // --- ANIMATION VARIANTS ---
 const slideIn = {
   hidden: { opacity: 0, y: 50 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } 
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as const }
   }
 };
 
@@ -44,19 +44,19 @@ const staggerContainer = {
 // Mask reveal for text
 const maskReveal = {
   hidden: { y: "100%", opacity: 0 },
-  visible: { 
-    y: "0%", 
-    opacity: 1, 
-    transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] } 
+  visible: {
+    y: "0%",
+    opacity: 1,
+    transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] as const }
   }
 };
 
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.8 },
-  visible: { 
-    opacity: 1, 
-    scale: 1, 
-    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } 
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as const }
   }
 };
 
@@ -80,18 +80,25 @@ const faqs = [
   }
 ];
 
+import { useTheme } from '@/components/ThemeProvider';
+
 export default function ContactPage() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const { theme, setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-  
+
   // Form state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+  const [formData, setFormData] = useState({
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    country: 'US',
+    subject: '',
+    message: ''
+  });
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -113,7 +120,6 @@ export default function ContactPage() {
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
-      setTimeout(() => setIsSubmitted(false), 5000); // reset after 5s
     }, 1500);
   };
 
@@ -129,7 +135,7 @@ export default function ContactPage() {
         {/* HERO SECTION */}
         <section className="c-hero-section">
           <div className="c-container">
-            <motion.div 
+            <motion.div
               initial="hidden" animate="visible" variants={staggerContainer}
               className="c-hero-content"
             >
@@ -157,43 +163,43 @@ export default function ContactPage() {
         <section className="c-main-section">
           <div className="c-container">
             <div className="c-main-grid">
-              
+
               {/* LEFT: Contact Information */}
-              <motion.div 
+              <motion.div
                 initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer}
                 className="c-left-col"
               >
                 {/* Info Cards */}
                 {[
-                  { 
-                    icon: <MapPin size={24}/>, 
-                    title: 'Office Address', 
+                  {
+                    icon: <MapPin size={24} />,
+                    title: 'Office Address',
                     content: 'Abdul Rahman Carpets, Main Road, Bhadohi, Uttar Pradesh 221401, India',
-                    action: null 
+                    action: null
                   },
-                  { 
-                    icon: <Phone size={24}/>, 
-                    title: 'Call Us', 
-                    content: '+91 98765 43210',
-                    action: <a href="tel:+919876543210" className="c-info-link-primary">Click to Call</a>
+                  {
+                    icon: <Phone size={24} />,
+                    title: 'Call Us',
+                    content: '+91 93213 66585',
+                    action: <a href="tel:+919321366585" className="c-info-link-primary">Click to Call</a>
                   },
-                  { 
-                    icon: <MessageCircle size={24}/>, 
-                    title: 'WhatsApp', 
+                  {
+                    icon: <MessageCircle size={24} />,
+                    title: 'WhatsApp',
                     content: 'Available for immediate inquiries and live support.',
-                    action: <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" className="c-info-link-whatsapp"><MessageCircle size={14}/> Chat on WhatsApp</a>
+                    action: <a href="https://wa.me/919321366585" target="_blank" rel="noopener noreferrer" className="c-info-link-whatsapp"><MessageCircle size={14} /> Chat on WhatsApp</a>
                   },
-                  { 
-                    icon: <Mail size={24}/>, 
-                    title: 'Email Address', 
+                  {
+                    icon: <Mail size={24} />,
+                    title: 'Email Address',
                     content: 'info@abdulrahmancarpets.com',
                     action: <a href="mailto:info@abdulrahmancarpets.com" className="c-info-link-primary">Send an Email</a>
                   },
-                  { 
-                    icon: <Clock size={24}/>, 
-                    title: 'Business Hours', 
+                  {
+                    icon: <Clock size={24} />,
+                    title: 'Business Hours',
                     content: 'Monday - Saturday: 9:00 AM - 6:00 PM (IST)\nSunday: Closed',
-                    action: null 
+                    action: null
                   }
                 ].map((item, idx) => (
                   <motion.div key={idx} variants={slideIn} className="c-info-card group">
@@ -212,10 +218,10 @@ export default function ContactPage() {
                 <motion.div variants={slideIn} className="c-social-section">
                   <h3 className="c-social-title">Follow Our Journey</h3>
                   <div className="c-social-grid">
-                    {[<Facebook size={20}/>, <Instagram size={20}/>, <Twitter size={20}/>, <Linkedin size={20}/>].map((icon, i) => (
-                      <motion.a 
-                        key={i} 
-                        href="#" 
+                    {[<Facebook size={20} />, <Instagram size={20} />, <Twitter size={20} />, <Linkedin size={20} />].map((icon, i) => (
+                      <motion.a
+                        key={i}
+                        href="#"
                         className="c-social-link"
                         whileHover={{ scale: 1.15, rotate: 5, backgroundColor: 'var(--accent-solid)', color: '#fff', borderColor: 'transparent' }}
                         whileTap={{ scale: 0.95 }}
@@ -229,86 +235,189 @@ export default function ContactPage() {
               </motion.div>
 
               {/* RIGHT: Contact Form */}
-              <motion.div 
+              <motion.div
                 initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={scaleIn}
                 className="c-right-col"
               >
                 <div className="c-form-card">
-                  
+
                   {/* Decorative glow */}
                   <div className="c-form-glow"></div>
 
-                  <div className="c-form-header">
-                    <h2 className="c-form-title">Send an Inquiry</h2>
-                    <p className="c-form-desc">Fill out the form below and our design consultants will get back to you within 24 hours.</p>
-                  </div>
-
-                  <form onSubmit={handleFormSubmit} className="c-form-group">
-                    <div className="c-form-row">
-                      <div className="c-form-field">
-                        <label className="c-form-label">Full Name *</label>
-                        <input required type="text" className="c-form-input" placeholder="John Doe" />
-                      </div>
-                      <div className="c-form-field">
-                        <label className="c-form-label">Company Name</label>
-                        <input type="text" className="c-form-input" placeholder="Architecture Studio LLC" />
-                      </div>
-                    </div>
-
-                    <div className="c-form-row">
-                      <div className="c-form-field">
-                        <label className="c-form-label">Email Address *</label>
-                        <input required type="email" className="c-form-input" placeholder="john@example.com" />
-                      </div>
-                      <div className="c-form-field">
-                        <label className="c-form-label">Phone Number</label>
-                        <input type="tel" className="c-form-input" placeholder="+1 (555) 000-0000" />
-                      </div>
-                    </div>
-
-                    <div className="c-form-row">
-                      <div className="c-form-field">
-                        <label className="c-form-label">Country</label>
-                        <select className="c-form-select">
-                          <option value="US">United States</option>
-                          <option value="UK">United Kingdom</option>
-                          <option value="IN">India</option>
-                          <option value="AE">UAE</option>
-                          <option value="OTHER">Other</option>
-                        </select>
-                      </div>
-                      <div className="c-form-field">
-                        <label className="c-form-label">Subject *</label>
-                        <input required type="text" className="c-form-input" placeholder="Project Inquiry" />
-                      </div>
-                    </div>
-
-                    <div className="c-form-field">
-                      <label className="c-form-label">Message *</label>
-                      <textarea required rows={5} className="c-form-textarea" placeholder="Tell us about your project requirements, dimensions, or design ideas..."></textarea>
-                    </div>
-
-                    <button 
-                      type="submit" 
-                      disabled={isSubmitting || isSubmitted}
-                      className="c-form-submit group"
+                  {isSubmitted ? (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                      className="c-submitted-card"
                     >
-                      <span className="relative z-10 flex items-center gap-2">
-                        {isSubmitting ? (
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        ) : isSubmitted ? (
-                          <>Message Sent <ShieldCheck size={18} /></>
-                        ) : (
-                          <>Send Inquiry <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" /></>
+                      <div className="c-success-icon-wrap">
+                        <ShieldCheck size={48} className="c-success-icon" />
+                      </div>
+
+                      <h2 className="c-form-title text-center" style={{ fontSize: '1.85rem' }}>Enquiry Submitted</h2>
+                      <p className="c-form-desc text-center" style={{ fontSize: '1rem', marginTop: '0.5rem' }}>
+                        Thank you, <strong>{formData.name}</strong>. We have received your inquiry. A consultant will review it and reply to <strong>{formData.email}</strong> shortly.
+                      </p>
+
+                      <div className="c-receipt-details">
+                        <div className="c-receipt-row">
+                          <span className="c-receipt-label">Subject</span>
+                          <span className="c-receipt-val">{formData.subject}</span>
+                        </div>
+                        {formData.company && (
+                          <div className="c-receipt-row">
+                            <span className="c-receipt-label">Company</span>
+                            <span className="c-receipt-val">{formData.company}</span>
+                          </div>
                         )}
-                      </span>
-                    </button>
-                    {isSubmitted && (
-                      <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-sm text-center text-[#25D366] mt-2">
-                        Thank you! We'll be in touch shortly.
-                      </motion.p>
-                    )}
-                  </form>
+                        {formData.phone && (
+                          <div className="c-receipt-row">
+                            <span className="c-receipt-label">Phone</span>
+                            <span className="c-receipt-val">{formData.phone}</span>
+                          </div>
+                        )}
+                        <div className="c-receipt-row">
+                          <span className="c-receipt-label">Country</span>
+                          <span className="c-receipt-val">{formData.country === 'US' ? 'United States' : formData.country === 'UK' ? 'United Kingdom' : formData.country === 'IN' ? 'India' : formData.country === 'AE' ? 'UAE' : 'Other'}</span>
+                        </div>
+                        <div className="c-receipt-row flex-col">
+                          <span className="c-receipt-label">Message Details</span>
+                          <p className="c-receipt-message">{formData.message}</p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setIsSubmitted(false);
+                          setFormData({
+                            name: '',
+                            company: '',
+                            email: '',
+                            phone: '',
+                            country: 'US',
+                            subject: '',
+                            message: ''
+                          });
+                        }}
+                        className="c-form-submit"
+                        style={{ marginTop: '2rem' }}
+                      >
+                        Send Another Enquiry
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <>
+                      <div className="c-form-header">
+                        <h2 className="c-form-title">Send an Inquiry</h2>
+                        <p className="c-form-desc">Fill out the form below and our design consultants will get back to you within 24 hours.</p>
+                      </div>
+
+                      <form onSubmit={handleFormSubmit} className="c-form-group">
+                        <div className="c-form-row">
+                          <div className="c-form-field">
+                            <label className="c-form-label">Full Name *</label>
+                            <input
+                              required
+                              type="text"
+                              className="c-form-input"
+                              placeholder="John Doe"
+                              value={formData.name}
+                              onChange={e => setFormData({ ...formData, name: e.target.value })}
+                            />
+                          </div>
+                          <div className="c-form-field">
+                            <label className="c-form-label">Company Name</label>
+                            <input
+                              type="text"
+                              className="c-form-input"
+                              placeholder="Architecture Studio LLC"
+                              value={formData.company}
+                              onChange={e => setFormData({ ...formData, company: e.target.value })}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="c-form-row">
+                          <div className="c-form-field">
+                            <label className="c-form-label">Email Address *</label>
+                            <input
+                              required
+                              type="email"
+                              className="c-form-input"
+                              placeholder="john@example.com"
+                              value={formData.email}
+                              onChange={e => setFormData({ ...formData, email: e.target.value })}
+                            />
+                          </div>
+                          <div className="c-form-field">
+                            <label className="c-form-label">Phone Number</label>
+                            <input
+                              type="tel"
+                              className="c-form-input"
+                              placeholder="+1 (555) 000-0000"
+                              value={formData.phone}
+                              onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="c-form-row">
+                          <div className="c-form-field">
+                            <label className="c-form-label">Country</label>
+                            <select
+                              className="c-form-select"
+                              value={formData.country}
+                              onChange={e => setFormData({ ...formData, country: e.target.value })}
+                            >
+                              <option value="US">United States</option>
+                              <option value="UK">United Kingdom</option>
+                              <option value="IN">India</option>
+                              <option value="AE">UAE</option>
+                              <option value="OTHER">Other</option>
+                            </select>
+                          </div>
+                          <div className="c-form-field">
+                            <label className="c-form-label">Subject *</label>
+                            <input
+                              required
+                              type="text"
+                              className="c-form-input"
+                              placeholder="Project Inquiry"
+                              value={formData.subject}
+                              onChange={e => setFormData({ ...formData, subject: e.target.value })}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="c-form-field">
+                          <label className="c-form-label">Message *</label>
+                          <textarea
+                            required
+                            rows={5}
+                            className="c-form-textarea"
+                            placeholder="Tell us about your project requirements, dimensions, or design ideas..."
+                            value={formData.message}
+                            onChange={e => setFormData({ ...formData, message: e.target.value })}
+                          ></textarea>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="c-form-submit group"
+                        >
+                          <span className="relative z-10 flex items-center gap-2">
+                            {isSubmitting ? (
+                              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            ) : (
+                              <>Send Inquiry <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" /></>
+                            )}
+                          </span>
+                        </button>
+                      </form>
+                    </>
+                  )}
                 </div>
               </motion.div>
 
@@ -317,18 +426,18 @@ export default function ContactPage() {
         </section>
 
         {/* GOOGLE MAP */}
-        <motion.section 
+        <motion.section
           initial={{ clipPath: 'inset(10% 5% 10% 5% round 2rem)', opacity: 0, scale: 0.95 }}
           whileInView={{ clipPath: 'inset(0% 0% 0% 0% round 0rem)', opacity: 1, scale: 1 }}
           transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
           viewport={{ once: true, margin: "-100px" }}
           className="c-map-section"
         >
-          <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d115409.80373053424!2d82.4950663!3d25.3941459!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x398fc1a48c414967%3A0xe5a2d677d2ec63a8!2sBhadohi%20Nagar%20Palika%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin" 
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d115409.80373053424!2d82.4950663!3d25.3941459!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x398fc1a48c414967%3A0xe5a2d677d2ec63a8!2sBhadohi%20Nagar%20Palika%2C%20Uttar%20Pradesh!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
             className="c-map-iframe"
-            allowFullScreen={false} 
-            loading="lazy" 
+            allowFullScreen={false}
+            loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
             title="Office Location Map"
           ></iframe>
@@ -345,7 +454,7 @@ export default function ContactPage() {
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer} className="c-faq-list">
               {faqs.map((faq, index) => (
                 <motion.div key={index} variants={slideIn} className="c-faq-item">
-                  <button 
+                  <button
                     onClick={() => setActiveFaq(activeFaq === index ? null : index)}
                     className="c-faq-btn"
                   >
@@ -356,7 +465,7 @@ export default function ContactPage() {
                   </button>
                   <AnimatePresence>
                     {activeFaq === index && (
-                      <motion.div 
+                      <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
@@ -375,23 +484,10 @@ export default function ContactPage() {
         </section>
 
       </main>
-      
-      {/* FLOATING WHATSAPP BUTTON */}
-      <motion.a 
-        href="https://wa.me/919876543210" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="c-floating-wa"
-        aria-label="Contact on WhatsApp"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 1.5, type: "spring", stiffness: 200, damping: 20 }}
-      >
-        <div className="c-floating-wa-pulse"></div>
-        <MessageCircle size={28} />
-      </motion.a>
 
       <Footer scrollToSection={scrollToSection} />
     </div>
   );
 }
+
+

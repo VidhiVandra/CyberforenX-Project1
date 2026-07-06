@@ -12,9 +12,9 @@ export default function Footer({ scrollToSection }: FooterProps) {
   return (
     <div 
       style={{
-        background: '#111215',
+        background: '#0a1128', // Premium Dark Blue
         color: '#ffffff',
-        borderTop: '1px solid rgba(197, 160, 89, 0.15)',
+        borderTop: '1px solid rgba(170, 204, 255, 0.15)', // Custom matching border
         padding: '80px 0 0 0',
         position: 'relative',
         zIndex: 10
@@ -45,11 +45,11 @@ export default function Footer({ scrollToSection }: FooterProps) {
           margin: 0 auto;
           display: flex;
           flex-direction: column;
-          justify-content: center;
+          justifyContent: center;
           align-items: center;
           gap: 20px;
           font-size: 12px;
-          color: #6a6b70;
+          color: #7a829a;
           text-align: center;
         }
         @media (min-width: 768px) {
@@ -63,18 +63,17 @@ export default function Footer({ scrollToSection }: FooterProps) {
         
         {/* BRAND IDENTITY COLUMN */}
         <div>
-          {/* Logo and Brand Name Container arranged to align text perfectly with paragraph */}
           <div 
             style={{ 
               position: 'relative',
-              paddingLeft: '62px', /* Reserves space for the logo on the left side */
+              paddingLeft: '62px', 
               minHeight: '46px',
               display: 'flex', 
               alignItems: 'center', 
               marginBottom: '20px' 
             }}
           >
-            {/* Circular Logo Housing shifted left */}
+            {/* Circular Logo Housing */}
             <div 
               style={{
                 position: 'absolute',
@@ -86,7 +85,7 @@ export default function Footer({ scrollToSection }: FooterProps) {
                 borderRadius: '50%',
                 overflow: 'hidden',
                 background: '#ffffff',
-                border: '1px solid #c5a059',
+                border: '1px solid #aaccff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -103,7 +102,7 @@ export default function Footer({ scrollToSection }: FooterProps) {
             </div>
             
             <div style={{ fontSize: '20px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', fontFamily: "'Cinzel', serif" }}>
-              Abdul Rahman<span style={{ color: '#c5a059', marginLeft: '6px' }}>Carpets</span>
+              Abdul Rahman<span style={{ color: '#aaccff', marginLeft: '6px' }}>Carpets</span>
             </div>
           </div>
           
@@ -111,13 +110,13 @@ export default function Footer({ scrollToSection }: FooterProps) {
             style={{
               fontSize: '14px',
               lineHeight: '1.7',
-              color: '#8a8b90',
+              color: '#a0a9c0',
               margin: '16px 0 0 0',
               maxWidth: '320px',
-              paddingLeft: '62px' /* Perfectly aligns the summary block underneath the text brand header */
+              paddingLeft: '62px' 
             }}
           >
-            Official online ecosystem dedicated to showcasing trackable custom rugs, pioneering fine-tuned manufacturing, and managing hospitality and commercial specifications worldwide.
+            Exquisite purveyors of luxury hand-knotted custom rugs, commercial carpets, and bespoke textile masterpieces scaled for residential and international design spaces.
           </p>
         </div>
 
@@ -138,22 +137,9 @@ export default function Footer({ scrollToSection }: FooterProps) {
           </span>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <Link href="/" style={directoryLinkStyle}>Home</Link>
-            <Link href="/who_are_we" style={directoryLinkStyle}>About Us</Link>
+            <Link href="/who-we-are" style={directoryLinkStyle}>About Us</Link>
             <Link href="/collection" style={directoryLinkStyle}>Collections</Link>
-            <Link 
-  href="/contact" 
-  style={{ 
-    ...directoryLinkStyle,
-    background: 'transparent', 
-    border: 'none', 
-    padding: 0, 
-    textAlign: 'left',
-    cursor: 'pointer',
-    display: 'inline-block' // Ensures it matches button block positioning layouts cleanly
-  }}
->
-  Contact Us
-</Link>
+            <Link href="/contact" style={directoryLinkStyle}>Contact Us</Link>
           </nav>
         </div>
 
@@ -174,17 +160,25 @@ export default function Footer({ scrollToSection }: FooterProps) {
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={contactNodeStyle}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5a059" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.79 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              <a href="tel:+15550192" style={{ color: 'inherit', textDecoration: 'none' }}>+1 (555) 0192</a>
+              {/* WhatsApp Icon Indicator */}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaccff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}>
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              </svg>
+              <a href="https://wa.me/919321366585?text=Hello%20Abdul%20Rahman%20Carpets%20Team" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
+                +91 93213 66585
+              </a>
             </div>
             <div style={contactNodeStyle}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c5a059" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span>Corporate HQ, Suite 500<br />Hub Area, Atlanta, GA 30120</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaccff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}>
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>Main Corporate Showroom<br />Main Road, Bhadohi, Uttar Pradesh 221401, India</span>
             </div>
           </div>
         </div>
 
-        {/* SOCIAL PANEL WITH BACK-TO-TOP BUTTON */}
+        {/* SOCIAL PANEL */}
         <div>
           <span 
             style={{
@@ -201,30 +195,39 @@ export default function Footer({ scrollToSection }: FooterProps) {
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              {/* Instagram */}
               <a 
                 href="https://www.instagram.com/arcarpets_/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 style={socialIconStyle} 
-                aria-label="Instagram Channel"
+                aria-label="Instagram"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
               </a>
               
+              {/* Facebook */}
               <a 
-                href="https://wa.me/YOUR_PHONE_NUMBER?text=Hello%20Abdul%20Rahman%20Carpets%20Team,%20I%20am%20reaching%20out%20from%20your%20website%20portfolio." 
+                href="https://facebook.com" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 style={socialIconStyle} 
-                aria-label="WhatsApp Chat Pipeline"
+                aria-label="Facebook"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-                </svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
               </a>
               
-              <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer" style={socialIconStyle} aria-label="Pinterest Boards">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              {/* Pinterest */}
+              <a 
+                href="https://pinterest.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={socialIconStyle} 
+                aria-label="Pinterest"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2A10 10 0 0 0 7 20.6c-.1-.9-.2-2.3.1-3.3l1.3-5.5s-.3-.7-.3-1.8c0-1.7 1-3 2.2-3 1 0 1.5.8 1.5 1.7 0 1-.7 2.6-1 4a1.5 1.5 0 0 0 1.5 1.9c1.8 0 3.2-1.9 3.2-4.7 0-2.5-1.8-4.2-4.3-4.2-2.9 0-4.7 2.2-4.7 4.5 0 .9.3 1.8.8 2.4l-.3 1.1c-.2-.7-.7-1.7-.7-2.8 0-3.7 2.7-7.2 7.8-7.2 4.1 0 7.3 2.9 7.3 6.8 0 4.1-2.6 7.4-6.2 7.4-1.2 0-2.3-.6-2.7-1.4l-.7 2.8c-.3 1-1 2.3-1.5 3.1A10 10 0 1 0 12 2z"/>
+                </svg>
               </a>
             </div>
           </div>
@@ -237,7 +240,7 @@ export default function Footer({ scrollToSection }: FooterProps) {
         style={{
           borderTop: '1px solid rgba(255, 255, 255, 0.05)',
           padding: '32px 5%',
-          background: '#0d0e10'
+          background: '#050914' // Darker Midnight Blue Contrast tint
         }}
       >
         <div className="footer-bottom">
@@ -262,13 +265,13 @@ const directoryLinkStyle: React.CSSProperties = {
   textTransform: 'uppercase',
   letterSpacing: '0.8px',
   textDecoration: 'none',
-  color: '#b0b0b5',
+  color: '#b3bccc',
   width: 'max-content'
 };
 
 const contactNodeStyle: React.CSSProperties = {
   fontSize: '14px',
-  color: '#b0b0b5',
+  color: '#b3bccc',
   lineHeight: '1.6',
   display: 'flex',
   alignItems: 'flex-start',
@@ -277,14 +280,14 @@ const contactNodeStyle: React.CSSProperties = {
 };
 
 const socialIconStyle: React.CSSProperties = {
-  color: '#b0b0b5',
+  color: '#b3bccc',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center'
 };
 
 const legalLinkStyle: React.CSSProperties = {
-  color: '#6a6b70',
+  color: '#7a829a',
   textDecoration: 'none',
   textTransform: 'uppercase',
   letterSpacing: '0.5px'

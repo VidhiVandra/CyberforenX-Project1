@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, use, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { ArrowLeft, MessageCircle, FileText, X, CheckCircle2 } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
@@ -14,18 +14,28 @@ import '../../products.css';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const } }
 };
 const staggerContainer = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
 };
 
+import { useTheme } from '@/components/ThemeProvider';
+
 export default function ProductDetailsPage({ params }: { params: Promise<{ category: string, id: string }> }) {
   const unwrappedParams = use(params);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const { theme, setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
-  
+
+  const pageRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: pageRef,
+    offset: ["start start", "end end"]
+  });
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
+  const backgroundScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+
   const [activeImage, setActiveImage] = useState<string>('');
   const [isZoomed, setIsZoomed] = useState(false);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
@@ -39,10 +49,6 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ categ
       setActiveImage(product.images[0]);
     }
   }, [product, activeImage]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -85,8 +91,44 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ categ
   };
 
   return (
-    <div className="p-page">
-      <div className="p-ambient-1"></div>
+    <div ref={pageRef} className="p-page" style={{ position: 'relative', overflow: 'hidden' }}>
+      {/* Parallax Backdrop Image */}
+      <motion.div 
+        style={{ 
+          position: 'absolute', 
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '50vh',
+          zIndex: 0, 
+          overflow: 'hidden',
+          y: backgroundY,
+          scale: backgroundScale,
+          pointerEvents: 'none'
+        }}
+      >
+        {activeImage && (
+          <Image 
+            src={activeImage} 
+            alt="Ambient Parallax Backdrop" 
+            fill 
+            style={{ 
+              objectFit: 'cover', 
+              filter: theme === 'light' 
+                ? 'blur(60px) brightness(95%) opacity(0.08)' 
+                : 'blur(60px) brightness(30%) opacity(0.35)' 
+            }} 
+            priority
+          />
+        )}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: theme === 'light' 
+            ? 'linear-gradient(to bottom, rgba(248,245,240,0) 0%, var(--bg-page) 100%)'
+            : 'linear-gradient(to bottom, rgba(14,16,23,0) 0%, var(--bg-page) 100%)'
+        }} />
+      </motion.div>
       <Navbar isScrolled={isScrolled} theme={theme} setTheme={setTheme} scrollToSection={scrollToSection} />
 
       <main className="p-main p-container">
@@ -200,7 +242,7 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ categ
 
             <motion.div variants={fadeUp} className="p-actions">
               <a 
-                href={`https://wa.me/919876543210?text=I'm interested in the ${product.name} (${product.id}) from the ${product.collectionName}. Can you provide more details?`}
+                href={`https://wa.me/919321366585?text=I'm interested in the ${product.name} (${product.id}) from the ${product.collectionName}. Can you provide more details?`}
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="p-btn p-btn-wa"
