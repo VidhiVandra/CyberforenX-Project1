@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { 
-  ArrowRight, 
-  MessageSquare, 
-  FileText, 
-  Layers, 
-  Award, 
-  Sparkles, 
-  Building2, 
+import {
+  ArrowRight,
+  MessageSquare,
+  FileText,
+  Layers,
+  Award,
+  Sparkles,
+  Building2,
   Quote,
   Users,
   CheckCircle,
@@ -19,14 +20,11 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-// --- IMPORT NAVBAR AND FOOTER USING NEXT.JS PATH ALIAS --- //
 import Navbar from '@/components/mostused/Navbar';
 import Footer from '@/components/mostused/Footer';
 
 // ---------- Config & Constants ----------
 const TOTAL_IMAGES = 9;
-
-// Array mapped specifically to public folder names (Carpet_01 to Carpet_09)
 const IMAGES: string[] = Array.from({ length: TOTAL_IMAGES }, (_, i) => `/Carpet_0${i + 1}.jpg`);
 
 // ---------- Math Utilities ----------
@@ -86,6 +84,47 @@ const scaleIn: Variants = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } }
 };
 
+// ---------- Signature motifs: fringe + thread ----------
+// A row of hand-knotted tassels closes out every image card — the one
+// literal, load-bearing motif of the redesign, borrowed from the product itself.
+const Fringe: React.FC<{ count?: number }> = ({ count = 28 }) => (
+  <svg
+    className="fringe-svg"
+    viewBox={`0 0 ${count * 8} 18`}
+    preserveAspectRatio="none"
+    aria-hidden="true"
+  >
+    {Array.from({ length: count }).map((_, i) => (
+      <line
+        key={i}
+        x1={i * 8 + 4}
+        y1={0}
+        x2={i * 8 + 4 + (i % 2 === 0 ? -1.5 : 1.5)}
+        y2={18}
+        stroke="var(--accent-line)"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    ))}
+  </svg>
+);
+
+// A single weft thread run between sections instead of a hairline rule.
+const ThreadDivider: React.FC = () => (
+  <div className="thread-divider" aria-hidden="true">
+    <svg viewBox="0 0 1200 20" preserveAspectRatio="none">
+      <path
+        d="M0,10 Q25,1 50,10 T100,10 T150,10 T200,10 T250,10 T300,10 T350,10 T400,10 T450,10 T500,10 T550,10 T600,10 T650,10 T700,10 T750,10 T800,10 T850,10 T900,10 T950,10 T1000,10 T1050,10 T1100,10 T1150,10 T1200,10"
+        fill="none"
+        stroke="var(--accent-line)"
+        strokeWidth="1"
+        strokeDasharray="0.5 7"
+        strokeLinecap="round"
+      />
+    </svg>
+  </div>
+);
+
 export default function HomePage() {
   const stickyScrollTrackRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -93,9 +132,12 @@ export default function HomePage() {
   const introH1Ref = useRef<HTMLHeadingElement>(null);
   const introPRef = useRef<HTMLParagraphElement>(null);
   const arcContentRef = useRef<HTMLDivElement>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
 
   const [activeValueIndex, setActiveValueIndex] = useState(0);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const AUTOPLAY_MS = 4000;
 
   const valuesData = [
     { icon: <Users className="w-5 h-5" />, title: 'Collaboration', desc: 'We blend creativity and craftsmanship, working side by side to combine talent with the latest trends — all to transform your vision into a beautifully crafted reality.' },
@@ -106,6 +148,7 @@ export default function HomePage() {
     { icon: <Sparkles className="w-5 h-5" />, title: 'Client Satisfaction', desc: 'We go beyond expectations, blending time-honored weaving traditions with modern excellence to ensure every client is truly satisfied.' }
   ];
 
+  // 3D ARC PHYSICS ENGINE LOGIC (UNCHANGED)
   useEffect(() => {
     const root = rootRef.current;
     const container = containerRef.current;
@@ -139,7 +182,7 @@ export default function HomePage() {
       const rect = scrollTrack.getBoundingClientRect();
       const totalScrollableHeight = rect.height - window.innerHeight;
       if (totalScrollableHeight <= 0) return;
-      
+
       const currentProgress = -rect.top / totalScrollableHeight;
       currentScrollProgress = clamp(currentProgress, 0, 1);
     };
@@ -165,7 +208,6 @@ export default function HomePage() {
         const isMobile = containerSize.width < 768;
         const minDimension = Math.min(containerSize.width, containerSize.height);
 
-        // State A: Circle Layout
         const circleRadius = Math.min(minDimension * 0.35, 330);
         const circleAngle = (i / TOTAL_IMAGES) * 360;
         const circleRad = (circleAngle * Math.PI) / 180;
@@ -175,7 +217,6 @@ export default function HomePage() {
           rotation: circleAngle + 90
         };
 
-        // State B: Fixed Base Half-Circle Arc
         const baseRadius = Math.min(containerSize.width, containerSize.height * 1.5);
         const arcRadius = baseRadius * (isMobile ? 1.3 : 1.05);
         const arcApexY = containerSize.height * (isMobile ? 0.38 : 0.28);
@@ -269,9 +310,51 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    const observerOptions: IntersectionObserverInit = {
+      root: null,
+      rootMargin: '0px 0px -10% 0px',
+      threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        } else {
+          entry.target.classList.remove('is-visible');
+        }
+      });
+    }, observerOptions);
+
+    const nodes = document.querySelectorAll('.reveal-node');
+    nodes.forEach((node) => observer.observe(node));
+    return () => nodes.forEach((node) => observer.unobserve(node));
+  }, []);
+
+  useEffect(() => {
+    if (window.innerWidth >= 1024) return;
+
+    const mobileObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active-mobile-scroll');
+          } else {
+            entry.target.classList.remove('active-mobile-scroll');
+          }
+        });
+      },
+      { root: null, rootMargin: "0px 0px -10% 0px", threshold: 0.1 }
+    );
+
+    document.querySelectorAll('.mobile-scroll-target').forEach((el) => mobileObserver.observe(el));
+    return () => mobileObserver.disconnect();
+  }, []);
+
+  useEffect(() => {
     autoPlayRef.current = setInterval(() => {
       setActiveValueIndex((prevIndex) => (prevIndex + 1) % valuesData.length);
-    }, 4000);
+    }, AUTOPLAY_MS);
 
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
@@ -284,22 +367,57 @@ export default function HomePage() {
       clearInterval(autoPlayRef.current);
       autoPlayRef.current = setInterval(() => {
         setActiveValueIndex((prevIndex) => (prevIndex + 1) % valuesData.length);
-      }, 4000);
+      }, AUTOPLAY_MS);
     }
   };
 
-  return (
-    <div className="bg-[#FFFFFF] text-[#4A3E3D] font-sans antialiased selection:bg-[#7A1C1C] selection:text-white overflow-x-hidden min-h-screen flex flex-col">
-      
-      <Navbar />
+  const scrollToSection = (id: string): void => {
+    const target = document.getElementById(id);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
-      <style dangerouslySetInnerHTML={{ __html: `
+  // Sync theme state → html[data-theme] whenever theme changes
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  // Track scroll for navbar transparency
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div className="bg-[var(--bg-page)] text-[var(--text-pure)] font-sans antialiased overflow-x-hidden min-h-screen flex flex-col" style={{ transition: 'background-color 0.4s ease, color 0.4s ease' }}>
+
+      <Navbar
+        isScrolled={isScrolled}
+        theme={theme}
+        setTheme={setTheme}
+        scrollToSection={scrollToSection}
+      />
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+        /* ---------- Font assignments ---------- */
+        body {
+          --font-display: 'Fraunces', ui-serif, Georgia, serif;
+          --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+          --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+        }
+
         .scroll-track-container {
           position: relative;
           width: 100%;
           height: 140vh;
           margin-bottom: 0px;
-          background: #FCFAF9; 
+          background: var(--bg-page);
+          transition: background-color 0.5s ease;
         }
         .hero-sticky-frame {
           position: sticky;
@@ -313,7 +431,7 @@ export default function HomePage() {
           width: 100%;
           height: 100%;
           overflow: hidden;
-          background: #000000; /* Replaced any remaining fallback fields to default to the image underlay bounds */
+          background: #000000;
         }
         .hero-bg-texture-layer {
           position: absolute;
@@ -339,40 +457,6 @@ export default function HomePage() {
           position: relative;
           z-index: 10;
         }
-        .intro-text {
-          position: absolute;
-          z-index: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          pointer-events: none;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 100%;
-          padding: 0 1rem;
-        }
-        .intro-text h1 {
-          font-size: 1.75rem;
-          font-weight: 600;
-          letter-spacing: -0.02em;
-          color: #FCFAF9; 
-          margin: 0;
-          filter: blur(0px);
-          transition: opacity 0.4s ease, filter 0.4s ease;
-        }
-        @media (min-width: 768px) {
-          .intro-text h1 { font-size: 2.75rem; }
-        }
-        .intro-text p {
-          margin-top: 1rem;
-          font-size: 0.75rem;
-          font-weight: 700;
-          letter-spacing: 0.25em;
-          color: #FA8A8A;
-          transition: opacity 0.4s ease;
-        }
         .arc-content {
           position: absolute;
           top: 14%;
@@ -388,25 +472,19 @@ export default function HomePage() {
           transition: opacity 0.15s linear, transform 0.15s linear;
         }
         .arc-content h2 {
-          font-size: 2rem;
-          font-weight: 700;
+          font-size: clamp(2rem, 5vw, 3.25rem);
+          font-weight: 600;
           color: #FCFAF9;
-          font-family: Georgia, Cambria, "Times New Roman", Times, serif;
-          letter-spacing: -0.02em;
+          font-family: var(--font-display);
+          letter-spacing: -0.01em;
           margin: 0 0 0.75rem 0;
         }
-        @media (min-width: 768px) {
-          .arc-content h2 { font-size: 3.25rem; }
-        }
         .arc-content p {
-          font-size: 0.875rem;
-          color: #D1C7C7;
+          font-size: clamp(0.875rem, 2vw, 1.05rem);
+          color: #C6CCDA;
           max-width: 36rem;
           line-height: 1.6;
           margin: 0;
-        }
-        @media (min-width: 768px) {
-          .arc-content p { font-size: 1.05rem; }
         }
         .cards-container {
           position: relative;
@@ -465,19 +543,19 @@ export default function HomePage() {
           background: transparent;
         }
         .card-back {
-          background: #1c0e0e;
+          background: var(--bg-secondary);
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           padding: 0.75rem;
-          border: 1px solid #4A3E3D;
+          border: 1px solid var(--border-active);
           transform: rotateY(180deg);
         }
         .card-back .label {
           font-size: 10px;
           font-weight: 700;
-          color: #FA8A8A;
+          color: var(--accent-solid);
           text-transform: uppercase;
           letter-spacing: 0.15em;
           margin: 0 0 0.25rem 0;
@@ -486,33 +564,338 @@ export default function HomePage() {
         .card-back .value {
           font-size: 0.75rem;
           font-weight: 500;
-          color: #FCFAF9;
+          color: var(--text-pure);
           text-align: center;
           margin: 0;
         }
+
+        /* ---------- Section rhythm ---------- */
+        .ux-section {
+          padding: 150px 40px;
+          position: relative;
+          z-index: 10;
+        }
+        .ux-section-title {
+          font-family: var(--font-display);
+          font-size: clamp(2.4rem, 4.6vw, 3.75rem);
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          line-height: 1.12;
+          margin-bottom: 1rem;
+          color: var(--text-pure);
+        }
+        .ux-section-subtitle {
+          font-size: 1.05rem;
+          color: var(--text-body);
+          max-width: 640px;
+          line-height: 1.7;
+          margin-bottom: 4rem;
+        }
+        .section-band {
+          background: var(--bg-secondary);
+        }
+        @media (max-width: 768px) {
+          .ux-section { padding: 88px 22px; }
+        }
+
+        /* Eyebrow label — used sparingly, and only where sequence/labeling is real */
+        .eyebrow {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-family: var(--font-mono);
+          font-size: 0.72rem;
+          font-weight: 500;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: var(--accent-line);
+          margin-bottom: 1.25rem;
+        }
+        .eyebrow::before {
+          content: '';
+          width: 18px;
+          height: 1px;
+          background: var(--accent-line);
+        }
+
+        /* Reveal-on-scroll utility (mirrors framer whileInView for non-motion nodes) */
+        .reveal-node { opacity: 1; }
+
+        /* ---------- Thread divider (signature motif) ---------- */
+        .thread-divider {
+          width: 100%;
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 0 40px;
+          opacity: 0.55;
+        }
+        .thread-divider svg { width: 100%; height: 16px; display: block; }
+        @media (max-width: 768px) { .thread-divider { padding: 0 22px; } }
+
+        /* ---------- Fringe motif on image cards ---------- */
+        .fringed-frame {
+          position: relative;
+          overflow: visible !important;
+        }
+        .fringe-svg {
+          position: absolute;
+          left: 0;
+          bottom: -13px;
+          width: 100%;
+          height: 15px;
+          opacity: 0.9;
+          filter: drop-shadow(0 3px 2px rgba(0,0,0,0.35));
+          pointer-events: none;
+        }
+
+        /* ---------- Card system ---------- */
+        .aw-card {
+          background: var(--bg-cards);
+          border: 1px solid var(--border-subtle);
+          border-radius: 4px;
+          transition: border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+        }
+        .aw-card-padded { padding: 2.75rem 2.25rem; }
+        .aw-card:hover {
+          border-color: var(--border-active);
+          transform: translateY(-4px);
+          box-shadow: 0 24px 48px -20px rgba(0,0,0,0.55);
+        }
+
+        .aw-image-frame {
+          position: relative;
+          width: 100%;
+          overflow: hidden;
+          aspect-ratio: 4 / 3;
+          background: var(--bg-secondary);
+        }
+        .aw-image-frame img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+          transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), filter 0.7s ease;
+          filter: saturate(0.92) contrast(1.02);
+        }
+        .aw-card:hover .aw-image-frame img {
+          transform: scale(1.06);
+        }
+        .aw-tag {
+          position: absolute;
+          top: 14px;
+          left: 14px;
+          font-family: var(--font-mono);
+          font-size: 0.66rem;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: var(--text-pure);
+          background: rgba(23,17,13,0.72);
+          border: 1px solid rgba(244,235,221,0.18);
+          padding: 5px 10px;
+          border-radius: 2px;
+          backdrop-filter: blur(4px);
+        }
+
+        .aw-desc { color: var(--text-body); font-size: 0.94rem; line-height: 1.7; }
+
+        /* ---------- Buttons ---------- */
+        .aw-btn-primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.6rem;
+          padding: 15px 30px;
+          background: var(--accent-solid);
+          color: #FBF3EA;
+          font-weight: 600;
+          font-size: 0.92rem;
+          border-radius: 2px;
+          border: 1px solid var(--accent-solid);
+          transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+          cursor: pointer;
+        }
+        .aw-btn-primary:hover {
+          background: var(--accent-solid-hover);
+          transform: translateY(-2px);
+          box-shadow: 0 14px 30px -12px rgba(59,93,150,0.5);
+        }
+        .aw-btn-ghost {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.6rem;
+          padding: 14px 28px;
+          background: transparent;
+          color: var(--text-pure);
+          font-weight: 600;
+          font-size: 0.92rem;
+          border-radius: 2px;
+          border: 1px solid var(--border-subtle);
+          transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
+          cursor: pointer;
+        }
+        .aw-btn-ghost:hover {
+          border-color: var(--accent-line);
+          background: rgba(201,162,39,0.06);
+          transform: translateY(-2px);
+        }
+
+        /* ---------- Stat blocks ---------- */
+        .aw-stat { border-left: 2px solid var(--accent-line); padding-left: 18px; }
+        .aw-stat h3 { font-family: var(--font-display); font-size: 2.1rem; font-weight: 600; color: var(--text-pure); }
+        .aw-stat label { display: block; margin-top: 5px; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+
+        /* ---------- Values / ledger list ---------- */
+        .value-row {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 18px 22px;
+          border-radius: 3px;
+          cursor: pointer;
+          border-left: 3px solid transparent;
+          transition: background 0.25s ease, border-color 0.25s ease;
+        }
+        .value-row.is-active { background: var(--bg-secondary); border-left-color: var(--accent-solid); }
+        .value-progress-track {
+          margin-top: 3px;
+          height: 2px;
+          width: 100%;
+          background: var(--border-subtle);
+          border-radius: 2px;
+          overflow: hidden;
+        }
+        .value-progress-fill { height: 100%; background: var(--accent-line); }
+
+        /* ---------- Process timeline ---------- */
+        .process-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0;
+          position: relative;
+        }
+        .process-grid::before {
+          content: '';
+          position: absolute;
+          top: 28px;
+          left: 8%;
+          right: 8%;
+          height: 1px;
+          background: repeating-linear-gradient(90deg, var(--accent-line) 0 6px, transparent 6px 14px);
+          opacity: 0.5;
+        }
+        .process-cell {
+          position: relative;
+          padding: 0 28px;
+        }
+        .process-cell:first-child { padding-left: 0; }
+        .process-cell:last-child { padding-right: 0; }
+        .process-index {
+          position: relative;
+          z-index: 2;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: var(--bg-page);
+          border: 1px solid var(--border-active);
+          font-family: var(--font-mono);
+          font-size: 1rem;
+          font-weight: 500;
+          color: var(--accent-line);
+          margin-bottom: 1.75rem;
+        }
+        .process-title { font-size: 1.2rem; font-weight: 700; color: var(--text-pure); margin-bottom: 0.6rem; }
+        .process-desc { color: var(--text-body); font-size: 0.92rem; line-height: 1.7; }
+        @media (max-width: 900px) {
+          .process-grid { grid-template-columns: 1fr; gap: 2.75rem; }
+          .process-grid::before { display: none; }
+          .process-cell { padding: 0 !important; }
+        }
+
+        /* ---------- Industry chips ---------- */
+        .aw-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 26px;
+          border-radius: 3px;
+          background: var(--bg-cards);
+          border: 1px solid var(--border-subtle);
+          color: var(--text-pure);
+          font-size: 0.95rem;
+          font-weight: 500;
+          transition: border-color 0.25s ease, transform 0.25s ease;
+        }
+        .aw-chip:hover { border-color: var(--accent-line); transform: translateY(-3px); }
+
+        /* ---------- Testimonial ---------- */
+        .aw-testimonial-card {
+          position: relative;
+          padding: 4.5rem 3rem;
+          border: 1px solid var(--border-subtle);
+          border-radius: 4px;
+          background: var(--bg-cards);
+        }
+        .aw-testimonial-text {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+          line-height: 1.55;
+          color: var(--text-pure);
+          font-weight: 500;
+        }
+
+        /* ---------- CTA ---------- */
+        .aw-cta {
+          position: relative;
+          padding: 130px 40px;
+          background: var(--bg-secondary);
+          overflow: hidden;
+        }
+        .aw-cta-blur {
+          position: absolute;
+          width: 560px;
+          height: 560px;
+          top: -220px;
+          right: -160px;
+          background: radial-gradient(circle, rgba(59,93,150,0.3) 0%, transparent 70%);
+          pointer-events: none;
+        }
+        .aw-cta-content { position: relative; z-index: 2; max-width: 780px; margin: 0 auto; text-align: center; }
+        .aw-cta-headline { font-family: var(--font-display); font-size: clamp(2.2rem, 4.4vw, 3.4rem); line-height: 1.15; font-weight: 600; color: var(--text-pure); margin-bottom: 1.25rem; }
+        .aw-cta-sub { color: var(--text-body); font-size: 1.05rem; max-width: 520px; margin: 0 auto 2.5rem; line-height: 1.7; }
+        .aw-cta-actions { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
       ` }} />
 
-      {/* 1. HERO SECTION */}
+      {/* 1. HERO SECTION — UNCHANGED */}
       <main style={{ flex: "1 0 auto", width: "100%", position: "relative" }}>
-        
+
         <div className="scroll-track-container" ref={stickyScrollTrackRef}>
           <div className="hero-sticky-frame">
             <div id="hero-root" ref={rootRef}>
-              
+
               <div className="hero-bg-texture-layer">
                 <img src="/Background-image.jpg" alt="Abdul Rahman Artisan Legacy Dark Canvas" />
-                {/* Fixed: Heavily tinted from-black/80 prevents top edge content leakage completely */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/20 to-[#FCFAF9]" />
+                <div className="absolute inset-0" style={{ background: 'var(--hero-overlay)' }} />
               </div>
 
               <div className="hero-stage">
-               
                 <div className="arc-content" ref={arcContentRef}>
-                  <h2>Abdul Rahman Carpets</h2>
-                  <p>
-                    A trusted manufacturer of Handmade Woolen, Cotton, Viscose, and custom-tailored carpets. 
+                  <h2 ref={introH1Ref}>Abdul Rahman Carpets</h2>
+                  <p ref={introPRef}>
+                    A trusted manufacturer of Handmade Woolen, Cotton, Viscose, and custom-tailored carpets.
                     Bringing authentic Bhadohi heritage and modern luxury into premium design architectures worldwide.
                   </p>
+                  <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '2rem', pointerEvents: 'auto' }}>
+                    <Link href="/collection" className="aw-btn-primary" style={{ textDecoration: 'none' }}>
+                      Explore Collection
+                    </Link>
+                    <button className="aw-btn-ghost" onClick={() => scrollToSection('quote')}>
+                      Request a Quote
+                    </button>
+                  </div>
                 </div>
 
                 <div className="cards-container" ref={containerRef}>
@@ -537,123 +920,147 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 2. COMPANY OVERVIEW */}
-        <section id="about" className="py-24 bg-[#FFFFFF] px-6 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-20">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeInUp}
-            className="space-y-6"
+        {/* IMAGE STRIP — Full-width scrolling carpet showcase */}
+        <div style={{ width: '100%', background: 'var(--bg-secondary)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)', padding: '0', overflow: 'hidden' }}>
+          <motion.div
+            initial={{ x: 0 }}
+            style={{ display: 'flex', gap: '4px' }}
           >
-            <div className="h-1 w-12 bg-[#7A1C1C]" />
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#2B1818]">Who We Are</h2>
-            <p className="text-[#5C4D4D] leading-relaxed font-light text-base">
-              The family business of carpets goes back to 1989, and Abdul Rahman Carpets was formally established to carry this tradition forward with dedication and excellence. With decades of experience, we take pride in preserving the rich legacy of our forefathers, who began this journey in the heartland of India, Bhadohi — known worldwide as the “Carpet City.”
-            </p>
-            <div className="grid grid-cols-2 gap-6 pt-2">
-              <div className="border-l-4 border-[#7A1C1C] pl-4">
-                <h3 className="text-3xl font-serif font-bold text-[#2B1818]">1989</h3>
-                <p className="text-xs uppercase tracking-wider text-[#A39292] mt-1 font-semibold">Family Roots</p>
+            {['/Carpet_01.jpg', '/Carpet_02.jpg', '/Carpet_03.jpg', '/Carpet_04.jpg', '/Carpet_05.jpg', '/Carpet_06.jpg', '/Carpet_07.jpg', '/Carpet_08.jpg', '/Carpet_09.jpg'].map((src, i) => (
+              <div
+                key={i}
+                style={{
+                  flex: '0 0 auto',
+                  width: 'clamp(260px, 22vw, 340px)',
+                  aspectRatio: '3/4',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <img
+                  src={src}
+                  alt={`Carpet specimen ${i + 1}`}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.6s cubic-bezier(0.16,1,0.3,1)' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.06)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                />
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px 14px', background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%)' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)' }}>Specimen {String(i + 1).padStart(2, '0')}</span>
+                </div>
               </div>
-              <div className="border-l-4 border-[#7A1C1C] pl-4">
-                <h3 className="text-3xl font-serif font-bold text-[#2B1818]">Bhadohi</h3>
-                <p className="text-xs uppercase tracking-wider text-[#A39292] mt-1 font-semibold">India's Carpet City</p>
-              </div>
-            </div>
+            ))}
           </motion.div>
-          
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeInUp}
-            className="relative bg-[#FAF6F6] p-8 md:p-12 border border-[#EBE3E3] shadow-sm rounded-2xl overflow-hidden group"
-          >
-            <div className="relative z-10 space-y-4">
-              <Sparkles className="text-[#7A1C1C] w-8 h-8" />
-              <h3 className="text-2xl font-serif font-bold text-[#2B1818]">Our Heritage</h3>
-              <p className="text-[#5C4D4D] font-light text-sm leading-relaxed">
-                Ours is a closely held family business. While we are relatively new to the export market, our carpets reflect decades of family experience and dedication to quality. Our goal is to share the timeless artistry of skilled local craftsmen and weavers.
-              </p>
-              <ul className="space-y-3 font-light text-sm text-[#5C4D4D] border-t border-[#EBE3E3] pt-4">
-                <li className="flex gap-3"><Layers className="w-5 h-5 text-[#7A1C1C] shrink-0" /> Upholding age-old traditions of handcrafted carpet manufacturing.</li>
-                <li className="flex gap-3"><Award className="w-5 h-5 text-[#7A1C1C] shrink-0" /> Showcasing the intricate skills of local Indian craftsmen.</li>
-              </ul>
-            </div>
-          </motion.div>
-        </section>
+        </div>
 
-        {/* 3. FEATURED MATERIAL COLLECTIONS */}
-        <section id="collection" className="py-24 bg-[#FAF6F6] px-6 border-t border-b border-[#EBE3E3]">
-          <div className="max-w-7xl mx-auto">
-            <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeInUp}
-              className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4"
-            >
-              <div>
-                <p className="text-[#7A1C1C] uppercase tracking-widest text-xs font-bold mb-2">Preserving Artistry</p>
-                <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#2B1818]">Featured Material Collections</h2>
+        {/* 2. COMPANY OVERVIEW */}
+        <motion.section
+          id="about"
+          className="ux-section reveal-node"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '4rem', alignItems: 'center', maxWidth: '1400px', margin: '0 auto' }}>
+            <motion.div variants={fadeInUp} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <span className="eyebrow"><Award className="w-3.5 h-3.5" /> Corporate Profile</span>
+              <h2 className="ux-section-title">Time-Honored<br />Expertise.</h2>
+              <p className="ux-section-subtitle" style={{ marginBottom: 0 }}>
+                The family business of carpets goes back to 1989, and Abdul Rahman Carpets was formally established to carry this tradition forward with dedication and excellence. With decades of experience, we take pride in preserving the rich legacy of our forefathers, who began this journey in the heartland of India, Bhadohi — known worldwide as the “Carpet City.”
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', paddingTop: '1rem' }}>
+                <div className="aw-stat">
+                  <h3>1989</h3>
+                  <label>Family Roots</label>
+                </div>
+                <div className="aw-stat">
+                  <h3>Bhadohi</h3>
+                  <label>India&apos;s Carpet City</label>
+                </div>
               </div>
-              <a href="#quote" className="text-[#5C4D4D] font-semibold inline-flex items-center gap-1 border-b-2 border-[#5C4D4D] pb-1 hover:text-[#7A1C1C] hover:border-[#7A1C1C] transition-colors text-sm">
-                Request Full Portfolio <ArrowRight className="w-4 h-4" />
-              </a>
             </motion.div>
 
-            <motion.div 
+            <motion.div variants={staggerContainer} style={{ display: 'grid', gap: '20px' }}>
+              <motion.div variants={fadeInUp} className="aw-card aw-card-padded">
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '0.6rem', color: 'var(--text-pure)' }}>Decades of Experience</h3>
+                <p className="aw-desc">Fine-tuned operational experience handling premium materials, yarn combinations, and high-concurrency client orders.</p>
+              </motion.div>
+              <motion.div variants={fadeInUp} className="aw-card aw-card-padded">
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '0.6rem', color: 'var(--text-pure)' }}>Direct Communication</h3>
+                <p className="aw-desc">Eliminate middle-tier friction. Connect with production specialists in real time via WhatsApp for swift product inquiries.</p>
+              </motion.div>
+            </motion.div>
+          </div>
+        </motion.section>
+
+        <ThreadDivider />
+
+        {/* 3. FEATURED MATERIAL COLLECTIONS */}
+        <section id="collection" className="ux-section reveal-node section-band">
+          <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+            <motion.div
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '4.5rem' }}
+            >
+              <span className="eyebrow"><Layers className="w-3.5 h-3.5" /> Preserving Artistry</span>
+              <h2 className="ux-section-title">Featured Material Collections</h2>
+              <p className="ux-section-subtitle" style={{ margin: '0 auto' }}>Explore an excerpt of our premium, high-density offerings explicitly tailored for architectural layouts.</p>
+            </motion.div>
+
+            <motion.div
               variants={staggerContainer}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-50px" }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8"
+              viewport={{ once: true, amount: 0.15 }}
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '48px 32px' }}
             >
               {[
-                { 
-                  title: 'Handmade Woolen Carpets', 
-                  desc: 'Exquisite masterworks carrying forward ancestral traditions with premium, robust woolen yarns.', 
+                {
+                  title: 'Handmade Woolen Carpets',
+                  desc: 'Exquisite masterworks carrying forward ancestral traditions with premium, robust woolen yarns.',
                   type: 'Handwoven Woolen',
-                  img: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800'
+                  img: '/Carpet_01.jpg'
                 },
-                { 
-                  title: 'Classic Cotton Masterpieces', 
-                  desc: 'Beautifully structured formats showcasing fine craftsmanship with highly durable cotton fibers.', 
+                {
+                  title: 'Classic Cotton Masterpieces',
+                  desc: 'Beautifully structured formats showcasing fine craftsmanship with highly durable cotton fibers.',
                   type: 'Natural Cotton',
-                  img: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&q=80&w=800'
+                  img: '/Carpet_04.jpg'
                 },
-                { 
-                  title: 'Premium Viscose Formations', 
-                  desc: 'High-quality lustrous layouts bringing elegant surface sheens and contemporary finishes to spaces.', 
+                {
+                  title: 'Premium Viscose Formations',
+                  desc: 'High-quality lustrous layouts bringing elegant surface sheens and contemporary finishes to spaces.',
                   type: 'Viscose Blend',
-                  img: 'https://images.unsplash.com/photo-1617103996702-96ff29b1c467?auto=format&fit=crop&q=80&w=800'
+                  img: '/Carpet_07.jpg'
                 }
               ].map((col, index) => (
-                <motion.div 
-                  key={index} 
+                <motion.div
+                  key={index}
                   variants={fadeInUp}
-                  whileHover={{ y: -6 }}
-                  className="bg-white border border-[#EBE3E3] shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group cursor-pointer rounded-xl overflow-hidden"
+                  className="aw-card"
+                  style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}
                 >
-                  <div>
-                    <div className="w-full h-64 overflow-hidden relative bg-[#F5F2F2]">
-                      <img 
-                        src={col.img} 
-                        alt={col.title} 
-                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="p-8">
-                      <span className="text-xs font-bold text-[#7A1C1C] uppercase tracking-wider bg-[#FDF2F2] px-2.5 py-1 rounded">{col.type}</span>
-                      <h3 className="text-xl font-serif font-bold text-[#2B1818] mt-3 mb-3">{col.title}</h3>
-                      <p className="text-[#6E5E5D] text-sm font-light leading-relaxed">{col.desc}</p>
-                    </div>
+                  <div className="aw-image-frame fringed-frame">
+                    <img src={col.img} alt={col.title} />
+                    <span className="aw-tag">{col.type}</span>
+                    <Fringe />
                   </div>
-                  <div className="px-8 pb-8">
-                    <button className="text-sm font-semibold inline-flex items-center gap-2 text-[#5C4D4D] group-hover:text-[#7A1C1C] transition-colors pt-4 border-t border-[#FAF6F6] w-full">
-                      Inquire Details <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                    </button>
+                  <div style={{ padding: '2.75rem 2rem 2.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', flexGrow: 1 }}>
+                    <h3 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-pure)' }}>{col.title}</h3>
+                    <p className="aw-desc">{col.desc}</p>
+
+                    <div style={{ marginTop: 'auto', paddingTop: '1.75rem' }}>
+                      <button
+                        className="aw-btn-ghost"
+                        style={{ width: '100%' }}
+                        onClick={() => scrollToSection('quote')}
+                      >
+                        Inquire Details
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -662,82 +1069,85 @@ export default function HomePage() {
         </section>
 
         {/* 4. INTERACTIVE VALUE ENGINE */}
-        <section id="services" className="py-24 bg-[#FFFFFF] px-6 overflow-hidden">
-          <div className="max-w-7xl mx-auto">
-            
-            <motion.div 
+        <section id="services" className="ux-section reveal-node">
+          <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+
+            <motion.div
+              variants={fadeInUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeInUp}
-              className="text-center max-w-2xl mx-auto mb-20"
+              viewport={{ once: true, amount: 0.3 }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginBottom: '4.5rem' }}
             >
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#2B1818] mb-4">The Allure of Handcrafted Carpets</h2>
-              <p className="text-[#6E5E5D] font-light text-sm md:text-base">
-                It's our deep-rooted values and dedication to quality that truly define who we are.
+              <span className="eyebrow"><Sparkles className="w-3.5 h-3.5" /> Company Strengths</span>
+              <h2 className="ux-section-title">The Allure of Handcrafted Carpets</h2>
+              <p className="ux-section-subtitle" style={{ margin: '0 auto' }}>
+                It&apos;s our deep-rooted values and dedication to quality that truly define who we are.
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              
-              <div className="lg:col-span-5 space-y-2 relative">
-                <div className="absolute left-6 top-4 bottom-4 w-[2px] bg-[#EBE3E3] hidden md:block" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '4rem', alignItems: 'center' }}>
 
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {valuesData.map((item, index) => {
                   const isActive = activeValueIndex === index;
                   return (
-                    <motion.div
+                    <div
                       key={index}
                       onMouseEnter={() => handleItemHover(index)}
-                      className={`relative flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all duration-200 z-10 select-none ${
-                        isActive 
-                          ? 'bg-[#FAF6F6] shadow-sm border-l-4 border-[#7A1C1C] translate-x-1' 
-                          : 'hover:bg-[#FAF6F6]/50 border-l-4 border-transparent'
-                      }`}
+                      className={`value-row mobile-scroll-target ${isActive ? 'is-active' : ''}`}
                     >
-                      <div className={`w-3 h-3 rounded-full flex items-center justify-center transition-all duration-300 shrink-0 ${
-                        isActive ? 'bg-[#7A1C1C] scale-120' : 'bg-[#D1C7C7]'
-                      }`} />
-
-                      <div className={`p-2 rounded-lg transition-colors ${isActive ? 'text-[#7A1C1C] bg-white shadow-sm' : 'text-[#A39292]'}`}>
+                      <div style={{ color: isActive ? 'var(--accent-line)' : 'var(--text-muted)', flexShrink: 0 }}>
                         {item.icon}
                       </div>
 
-                      <div className="flex-1">
-                        <h3 className={`font-serif text-base md:text-lg transition-colors ${isActive ? 'text-[#2B1818] font-bold' : 'text-[#5C4D4D]'}`}>
+                      <div style={{ flex: 1 }}>
+                        <h3 style={{ fontSize: '1.08rem', fontWeight: isActive ? 700 : 500, color: isActive ? 'var(--text-pure)' : 'var(--text-body)', marginBottom: isActive ? '8px' : 0, transition: 'all 0.2s ease' }}>
                           {item.title}
                         </h3>
+                        {isActive && (
+                          <div className="value-progress-track">
+                            <motion.div
+                              key={activeValueIndex}
+                              className="value-progress-fill"
+                              initial={{ width: '0%' }}
+                              animate={{ width: '100%' }}
+                              transition={{ duration: AUTOPLAY_MS / 1000, ease: 'linear' }}
+                            />
+                          </div>
+                        )}
                       </div>
 
-                      <ChevronRight className={`w-4 h-4 text-[#7A1C1C] transition-transform duration-300 ${isActive ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`} />
-                    </motion.div>
+                      <ChevronRight className={`w-4 h-4 text-[var(--accent-line)] transition-all duration-300 flex-shrink-0 ${isActive ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`} />
+                    </div>
                   );
                 })}
               </div>
 
-              <div className="lg:col-span-7 min-h-[380px] flex items-center justify-center w-full">
+              <div style={{ minHeight: '340px', display: 'flex', alignItems: 'center' }}>
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeValueIndex}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -15 }}
-                    transition={{ duration: 0.3 }}
-                    className="bg-[#FAF6F6] text-[#5C4D4D] p-8 md:p-12 rounded-2xl shadow-sm w-full h-full flex flex-col justify-center relative overflow-hidden min-h-[380px] border border-[#EBE3E3]"
+                    initial={{ opacity: 0, x: 18 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -18 }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                    className="aw-card aw-card-padded"
+                    style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.1rem' }}
                   >
-                    <div className="flex items-center gap-4 mb-6 relative z-10">
-                      <div className="text-[#7A1C1C] bg-white w-14 h-14 flex items-center justify-center rounded-xl shadow-sm border border-[#EBE3E3]">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div style={{ color: 'var(--accent-line)', background: 'var(--bg-page)', width: '3.5rem', height: '3.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', border: '1px solid var(--border-active)' }}>
                         {valuesData[activeValueIndex].icon}
                       </div>
                       <div>
-                        <span className="text-[#7A1C1C] uppercase tracking-widest text-[10px] font-bold block mb-0.5">Value Parameter 0{activeValueIndex + 1}</span>
-                        <h3 className="text-2xl font-serif font-bold text-[#2B1818]">
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>Value Parameter 0{activeValueIndex + 1}</span>
+                        <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.55rem', fontWeight: 600, color: 'var(--text-pure)' }}>
                           {valuesData[activeValueIndex].title}
                         </h3>
                       </div>
                     </div>
 
-                    <p className="text-[#5C4D4D] text-base md:text-lg font-light leading-relaxed border-l-4 border-[#7A1C1C] pl-6 py-1 mt-2 relative z-10">
+                    <p className="aw-desc" style={{ borderLeft: '2px solid var(--accent-line)', paddingLeft: '18px' }}>
                       {valuesData[activeValueIndex].desc}
                     </p>
                   </motion.div>
@@ -748,41 +1158,39 @@ export default function HomePage() {
           </div>
         </section>
 
+        <ThreadDivider />
+
         {/* 5. MANUFACTURING PROCESS */}
-        <section className="w-full bg-[#FAF6F6] text-[#5C4D4D] py-24 px-6 border-t border-b border-[#EBE3E3]">
-          <div className="max-w-7xl mx-auto">
-            <motion.div 
+        <section className="ux-section reveal-node section-band">
+          <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+            <motion.div
+              variants={fadeInUp}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeInUp}
-              className="max-w-2xl mb-16"
+              viewport={{ once: true, amount: 0.3 }}
+              style={{ marginBottom: '4.5rem' }}
             >
-              <p className="text-[#7A1C1C] uppercase tracking-widest text-xs font-bold mb-2">Our Execution Standards</p>
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#2B1818]">In-House Production Workflow</h2>
-              <p className="text-[#6E5E5D] font-light mt-2 text-sm">We take utmost care in maintaining high quality and pay close attention to every detail of the manufacturing process.</p>
+              <span className="eyebrow">Our Execution Standards</span>
+              <h2 className="ux-section-title">In-House Production Workflow</h2>
+              <p className="ux-section-subtitle">We take utmost care in maintaining high quality and pay close attention to every detail of the manufacturing process.</p>
             </motion.div>
 
-            <motion.div 
+            <motion.div
+              className="process-grid"
               variants={staggerContainer}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-50px" }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-12"
+              viewport={{ once: true, amount: 0.2 }}
             >
               {[
                 { step: '01', title: 'Skilled Design Formulation', desc: 'Our unique designs are engineered completely by expert in-house design specialists, and we welcome customer ideas.' },
                 { step: '02', title: 'Client Customization', desc: 'Transforming unique and attractive customer blueprint ideas into final physical layouts.' },
                 { step: '03', title: 'Flawless In-House Weaving', desc: 'Our entire production process — from designing to weaving — is carried out in-house, leaving no scope for compromise.' }
               ].map((proc, index) => (
-                <motion.div 
-                  key={index} 
-                  variants={fadeInUp}
-                  className="relative space-y-4 border-t border-[#D1C7C7] pt-6 cursor-default transition-colors hover:border-[#7A1C1C]"
-                >
-                  <span className="text-4xl font-serif font-bold text-[#7A1C1C] block">{proc.step}</span>
-                  <h3 className="text-xl font-serif font-bold text-[#2B1818]">{proc.title}</h3>
-                  <p className="text-[#6E5E5D] text-sm font-light leading-relaxed">{proc.desc}</p>
+                <motion.div key={index} variants={fadeInUp} className="process-cell mobile-scroll-target">
+                  <span className="process-index">{proc.step}</span>
+                  <h3 className="process-title">{proc.title}</h3>
+                  <p className="process-desc">{proc.desc}</p>
                 </motion.div>
               ))}
             </motion.div>
@@ -790,188 +1198,157 @@ export default function HomePage() {
         </section>
 
         {/* 6. INDUSTRIES SERVED */}
-        <section className="py-20 bg-[#FFFFFF] px-6 max-w-7xl mx-auto text-center">
-          <motion.h2 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-xs font-bold uppercase tracking-widest text-[#A39292] mb-12"
-          >
-            Presenting Textile Masterworks Internationally
-          </motion.h2>
-          
-          <motion.div 
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 justify-items-center"
-          >
-            {[
-              { icon: <Building2 className="w-5 h-5 text-[#7A1C1C]" />, text: 'Global Export Markets' },
-              { icon: <Building2 className="w-5 h-5 text-[#7A1C1C]" />, text: 'Residential Layouts' },
-              { icon: <Building2 className="w-5 h-5 text-[#7A1C1C]" />, text: 'Custom Showrooms' },
-              { icon: <Building2 className="w-5 h-5 text-[#7A1C1C]" />, text: 'Bespoke Collaborations' }
-            ].map((industry, i) => (
-              <motion.div 
-                key={i}
-                variants={scaleIn}
-                whileHover={{ scale: 1.03, color: "#7A1C1C" }}
-                className="flex items-center gap-2 font-serif font-bold text-lg text-[#2B1818] transition-colors cursor-default"
-              >
-                {industry.icon} {industry.text}
-              </motion.div>
-            ))}
-          </motion.div>
+        <section className="ux-section reveal-node">
+          <div style={{ maxWidth: '1400px', margin: '0 auto', textAlign: 'center' }}>
+            <span className="eyebrow" style={{ justifyContent: 'center' }}>Presenting Textile Masterworks Internationally</span>
+
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', marginTop: '1.5rem' }}
+            >
+              {[
+                { text: 'Global Export Markets' },
+                { text: 'Residential Layouts' },
+                { text: 'Custom Showrooms' },
+                { text: 'Bespoke Collaborations' }
+              ].map((industry, i) => (
+                <motion.div key={i} variants={fadeInUp} className="aw-chip">
+                  <Building2 className="w-4 h-4 text-[var(--accent-line)]" /> {industry.text}
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
         </section>
 
+        <ThreadDivider />
+
         {/* 7. CUSTOMER TESTIMONIALS */}
-        <section className="py-24 bg-[#FAF6F6] px-6 overflow-hidden border-t border-b border-[#EBE3E3]">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto text-center"
+        <section className="ux-section reveal-node section-band">
+          <motion.div
+            variants={scaleIn}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+            style={{ maxWidth: '980px', margin: '0 auto' }}
           >
-            <Quote className="w-10 h-10 text-[#7A1C1C] mx-auto mb-6 opacity-30" />
-            <p className="text-xl md:text-2xl font-serif italic text-[#2B1818] leading-relaxed mb-8 font-medium">
-              "Abdul Rahman Carpets goes beyond expectations, blending time-honored weaving traditions with modern excellence to ensure every client is truly satisfied."
-            </p>
-            <div>
-              <h4 className="font-bold tracking-wide text-[#2B1818]">Global Sourcing Representative</h4>
-              <p className="text-xs text-[#A39292] uppercase tracking-widest mt-1 font-semibold">International Textile Network</p>
+            <div className="aw-testimonial-card" style={{ textAlign: 'center' }}>
+              <Quote className="w-9 h-9 text-[var(--accent-line)] mx-auto mb-6 opacity-50" />
+              <h2 className="aw-testimonial-text">
+                Abdul Rahman Carpets goes beyond expectations, blending time-honored weaving traditions with modern excellence to ensure every client is truly satisfied.
+              </h2>
+              <div style={{ marginTop: '2.5rem' }}>
+                <h4 style={{ fontWeight: 700, color: 'var(--text-pure)' }}>Global Sourcing Representative</h4>
+                <span style={{ display: 'block', marginTop: '4px', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>International Textile Network</span>
+              </div>
             </div>
           </motion.div>
         </section>
 
         {/* 8. GALLERY PREVIEW */}
-        <section className="py-24 max-w-7xl mx-auto bg-[#FFFFFF] px-6">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4"
-          >
-            <div>
-              <span className="text-[#7A1C1C] uppercase tracking-widest text-xs font-bold inline-block mb-2">Exquisite Handcraft</span>
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#2B1818]">Gallery Specimen Preview</h2>
-            </div>
-            <p className="text-[#6E5E5D] font-light text-sm max-w-md md:text-right">
-              A curated look into our premium textures, intricate border styles, and signature contemporary weaving finishes.
-            </p>
-          </motion.div>
-          
-          <motion.div 
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[240px]"
-          >
-            {[
-              {
-                src: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=800",
-                title: "Vintage Medallion",
-                tag: "Classic Woolen",
-                gridSpan: "md:col-span-2 md:row-span-2"
-              },
-              {
-                src: "https://images.unsplash.com/photo-1576016770956-debb63d900bb?auto=format&fit=crop&q=80&w=800",
-                title: "Minimalist Linens",
-                tag: "Modern Organic",
-                gridSpan: "md:col-span-2 md:row-span-1"
-              },
-              {
-                src: "https://images.unsplash.com/photo-1617103996702-96ff29b1c467?auto=format&fit=crop&q=80&w=800",
-                title: "Lustrous Surface Sheen",
-                tag: "Premium Viscose",
-                gridSpan: "md:col-span-1 md:row-span-1"
-              },
-              {
-                src: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&q=80&w=800",
-                title: "Earth-Toned Textures",
-                tag: "Natural Cotton",
-                gridSpan: "md:col-span-1 md:row-span-2"
-              },
-              {
-                src: "https://images.unsplash.com/photo-1600121848594-d8644e57abab?auto=format&fit=crop&q=80&w=800",
-                title: "Bhadohi Heritage Borders",
-                tag: "Artisan Antique",
-                gridSpan: "md:col-span-2 md:row-span-1"
-              }
-            ].map((item, i) => (
-              <motion.div 
-                key={i} 
-                variants={scaleIn}
-                whileHover={{ y: -4 }}
-                className={`relative ${item.gridSpan} bg-[#FAF6F6] overflow-hidden group cursor-pointer rounded-xl shadow-sm border border-[#EBE3E3]`}
-              >
-                <img 
-                  src={item.src} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover transition-transform duration-500 ease-out"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1F1212]/70 via-transparent to-transparent opacity-80" />
-                
-                <div className="absolute top-4 left-4 bg-white shadow-sm px-2.5 py-1 rounded-md text-[10px] tracking-wider text-[#7A1C1C] uppercase font-bold border border-[#EBE3E3]">
-                  {item.tag}
-                </div>
+        <section className="ux-section reveal-node">
+          <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+            <motion.div
+              variants={fadeInUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              style={{ display: 'flex', flexDirection: 'column', marginBottom: '4.5rem' }}
+            >
+              <span className="eyebrow">Exquisite Handcraft</span>
+              <h2 className="ux-section-title">Gallery Specimen Preview</h2>
+              <p className="ux-section-subtitle">
+                A curated look into our premium textures, intricate border styles, and signature contemporary weaving finishes.
+              </p>
+            </motion.div>
 
-                <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col justify-end">
-                  <h3 className="font-serif text-lg text-white mb-1 font-bold">
-                    {item.title}
-                  </h3>
-                  <div className="h-0 group-hover:h-5 opacity-0 group-hover:opacity-100 overflow-hidden transition-all duration-300 flex items-center gap-1 text-xs text-[#EFA8A8] font-bold">
-                    View Specimen Detail <ChevronRight className="w-3 h-3" />
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '44px 24px' }}
+            >
+              {[
+                {
+                  src: '/Carpet_02.jpg',
+                  title: 'Vintage Medallion',
+                  tag: 'Classic Woolen'
+                },
+                {
+                  src: '/Carpet_05.jpg',
+                  title: 'Minimalist Linens',
+                  tag: 'Modern Organic'
+                },
+                {
+                  src: '/Carpet_08.jpg',
+                  title: 'Lustrous Surface Sheen',
+                  tag: 'Premium Viscose'
+                },
+                {
+                  src: '/Carpet_03.jpg',
+                  title: 'Earth-Toned Textures',
+                  tag: 'Natural Cotton'
+                }
+              ].map((item, i) => (
+                <motion.div key={i} variants={fadeInUp} className="aw-card mobile-scroll-target" style={{ padding: 0, overflow: 'hidden' }}>
+                  <div className="aw-image-frame fringed-frame" style={{ aspectRatio: '1 / 1' }}>
+                    <img src={item.src} alt={item.title} />
+                    <span className="aw-tag">{item.tag}</span>
+                    <Fringe />
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                  <div style={{ padding: '1.75rem 1.5rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ fontSize: '1.12rem', fontWeight: 700, color: 'var(--text-pure)' }}>{item.title}</h3>
+                    <ArrowRight className="w-4 h-4 text-[var(--accent-line)]" />
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
         </section>
 
         {/* 9. FINAL CALL TO ACTION */}
-        <section id="quote" className="bg-[#FAF6F6] text-[#2B1818] py-24 px-6 text-center border-t border-[#EBE3E3] relative">
-          <motion.div 
+        <section id="quote" className="aw-cta reveal-node">
+          <div className="aw-cta-blur"></div>
+          <motion.div
+            className="aw-cta-content"
+            variants={fadeInUp}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            className="max-w-3xl mx-auto space-y-8 relative z-10"
+            viewport={{ once: true, amount: 0.4 }}
           >
-            <h2 className="text-3xl md:text-5xl font-serif font-bold tracking-wide leading-tight text-[#2B1818]">
+            <h2 className="aw-cta-headline">
               Transform Your Vision into a <br />
-              <span className="text-[#7A1C1C] italic font-normal">Beautifully Crafted Reality</span>
+              <span style={{ color: 'var(--accent-line)', fontStyle: 'italic', fontWeight: 500 }}>Beautifully Crafted Reality</span>
             </h2>
-            <p className="text-[#6E5E5D] font-light max-w-xl mx-auto text-sm md:text-base leading-relaxed">
+            <p className="aw-cta-sub">
               Connect with our team to explore design options or request a direct price quote from Bhadohi.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-              <motion.a 
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                href="https://wa.me/your-number" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="bg-[#7A1C1C] hover:bg-[#611313] text-white font-semibold px-8 py-3.5 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm text-sm"
+            <div className="aw-cta-actions">
+              <a
+                href="https://wa.me/your-number"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="aw-btn-primary"
+                style={{ textDecoration: 'none' }}
               >
                 <MessageSquare className="w-5 h-5" /> Contact on WhatsApp
-              </motion.a>
-              <motion.a 
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-                href="mailto:info@abdulrahmancarpets.com?subject=Quote Request" 
-                className="bg-[#2B1818] hover:bg-[#1F1212] text-white font-medium px-8 py-3.5 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2 shadow-sm text-sm"
+              </a>
+              <a
+                href="mailto:info@abdulrahmancarpets.com?subject=Quote Request"
+                className="aw-btn-ghost"
+                style={{ textDecoration: 'none' }}
               >
                 <FileText className="w-5 h-5" /> Email Quote Request
-              </motion.a>
+              </a>
             </div>
           </motion.div>
         </section>
       </main>
+
+      <Footer scrollToSection={scrollToSection} />
     </div>
   );
 }

@@ -20,17 +20,46 @@ export default function Footer({ scrollToSection }: FooterProps) {
         zIndex: 10
       }}
     >
-      <footer 
-        style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          padding: '0 5% 60px 5%',
-          display: 'grid',
-          gridTemplateColumns: '1.5fr repeat(3, 1fr)',
-          gap: '48px',
-          alignItems: 'start'
-        }}
-      >
+      <style>{`
+        .footer-grid {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 0 5% 60px 5%;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 48px;
+          align-items: start;
+        }
+        @media (min-width: 768px) {
+          .footer-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (min-width: 1024px) {
+          .footer-grid {
+            grid-template-columns: 1.5fr repeat(3, 1fr);
+          }
+        }
+        .footer-bottom {
+          max-width: 1400px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          gap: 20px;
+          font-size: 12px;
+          color: #6a6b70;
+          text-align: center;
+        }
+        @media (min-width: 768px) {
+          .footer-bottom {
+            flex-direction: row;
+            justify-content: space-between;
+          }
+        }
+      `}</style>
+      <footer className="footer-grid">
         
         {/* BRAND IDENTITY COLUMN */}
         <div>
@@ -110,21 +139,21 @@ export default function Footer({ scrollToSection }: FooterProps) {
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <Link href="/" style={directoryLinkStyle}>Home</Link>
             <Link href="/who_are_we" style={directoryLinkStyle}>About Us</Link>
-            <Link href="/collections" style={directoryLinkStyle}>Collections</Link>
-            <button 
-              type="button" 
-              onClick={() => scrollToSection('cta-funnel')} 
-              style={{ 
-                ...directoryLinkStyle,
-                background: 'transparent', 
-                border: 'none', 
-                padding: 0, 
-                textAlign: 'left',
-                cursor: 'pointer'
-              }}
-            >
-              Contact Us
-            </button>
+            <Link href="/collection" style={directoryLinkStyle}>Collections</Link>
+            <Link 
+  href="/contact" 
+  style={{ 
+    ...directoryLinkStyle,
+    background: 'transparent', 
+    border: 'none', 
+    padding: 0, 
+    textAlign: 'left',
+    cursor: 'pointer',
+    display: 'inline-block' // Ensures it matches button block positioning layouts cleanly
+  }}
+>
+  Contact Us
+</Link>
           </nav>
         </div>
 
@@ -211,19 +240,7 @@ export default function Footer({ scrollToSection }: FooterProps) {
           background: '#0d0e10'
         }}
       >
-        <div 
-          style={{
-            maxWidth: '1400px',
-            margin: '0 auto',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '20px',
-            fontSize: '12px',
-            color: '#6a6b70'
-          }}
-        >
+        <div className="footer-bottom">
           <span>&copy; 2026 ABDUL RAHMAN CARPETS. ALL RIGHTS RESERVED.</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             <a href="#" style={legalLinkStyle}>Privacy Policy</a>
