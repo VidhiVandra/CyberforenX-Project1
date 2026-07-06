@@ -429,7 +429,7 @@ export default function ContactPage() {
         <motion.section
           initial={{ clipPath: 'inset(10% 5% 10% 5% round 2rem)', opacity: 0, scale: 0.95 }}
           whileInView={{ clipPath: 'inset(0% 0% 0% 0% round 0rem)', opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] as const }}
           viewport={{ once: true, margin: "-100px" }}
           className="c-map-section"
         >
@@ -469,7 +469,7 @@ export default function ContactPage() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] as const }}
                       >
                         <div className="c-faq-answer-wrapper">
                           {faq.answer}

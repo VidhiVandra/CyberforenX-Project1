@@ -312,7 +312,7 @@ export default function CollectionPage() {
                   exit={{ width: '0%' }}
                   transition={{
                     duration: 1.0,
-                    ease: [0.25, 1, 0.5, 1], // Smooth roll ease
+                    ease: [0.25, 1, 0.5, 1] as const, // Smooth roll ease
                     delay: i * 0.04,
                   }}
                 >
